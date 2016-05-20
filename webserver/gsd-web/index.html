@@ -7,6 +7,27 @@
       </TITLE>
     <style>
 
+	*{
+		margin:0px;
+		padding:0px;
+		font-family:"Arial", Gadget, sans-serif;
+	}
+
+    #topBar{
+    	margin:0px;
+    	padding-left: 40px;
+    	padding-top: 25px;
+    	position: absolute;
+    	top:0;
+    	height: 100px;
+    	width: 100%;
+    	background-color: #35372F;
+    	border-bottom: 5px solid #101411;
+    	color:#948B55;
+    	font-family:"Arial Black", Gadget, sans-serif;
+    	font-size:50px;
+    }
+
     .robot{
     	font-family:Arial;
     	font-weight: bold;
@@ -60,34 +81,6 @@
 		
 	}
 
-	#horizLine{
-		position: absolute;
-		top:175px;
-		left: 25px;
-		height:1px;
-		width: 300px;
-		border-top:1px solid black;
-	}
-	
-	#vertLine{
-		position: absolute;
-		top:25px;
-		left:175px;
-		width:1px;
-		height: 300px;
-		border-left:1px solid black;
-	}
-
-	#outerLine{
-		border: 1px solid black;
-		position: absolute;
-		z-index: 5;
-		left:25px;
-		top:25px;
-		width:300px;
-		height: 300px;
-	}
-
 	table{
 		position: relative;
 		z-index: 10;
@@ -95,22 +88,23 @@
 
 	td{ 
 		z-index: 100;
-		width:48px;
-		height:48px;
+		width:50px;
+		height:50px;
 		text-align: center;
-		color:white;
+		color:#16301D;
 		-webkit-user-select: none; /* Chrome/Safari */        
 		-moz-user-select: none; /* Firefox */
 		-ms-user-select: none; /* IE10+ */
+		background-color: #16301D;
 	}
 	td:hover{
-		background-color: #e6e6e6;
-		color: #e6e6e6;
+		background-color: #9C914D;
+		color: #9C914D;
 	}
 
 	.section{
-		background-color: green;
-		color:green;
+		background-color: #2C2F21;
+		color:#2C2F21;
 		width:46px;
 		height:46px;
 		border:1px solid black;
@@ -119,48 +113,57 @@
 
 	.section:hover{
 		cursor: pointer;
-		background-color: grey;
-		color:grey;
+		background-color: #494B42;
+		color:#494B42;
 	}
 
 	#orderBar{
 		display: none;
 		position: absolute;
-		left:600px;
+		left:596px;
 		top:600px;
 		width:370px;
-		height:60px;
+		text-align: center;
 	}
+		#submitButton{
+			position: absolute;
+			top:170px;
+			left:130px;	
+			background-color: #97BA1C;
+			color: #151908;
+			display:none;
+		}
 
-		#orderBar div{
+		#submitButton:hover{
+			background-color: #98A765;
+		}
+
+		.buttons{
 			display: inline-block;
-			background: #3498db;
-			background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-			background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-			background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-			background-image: -o-linear-gradient(top, #3498db, #2980b9);
-			background-image: linear-gradient(to bottom, #3498db, #2980b9);
+			background-color: #0D2213;
 			-webkit-border-radius: 28;
 			-moz-border-radius: 28;
 			border-radius: 28px;
 			font-family: Arial;
-			color: #ffffff;
+			color: #948B55;
 			font-size: 20px;
 			padding: 10px 20px 10px 20px;
 			text-decoration: none;
 		}
 
-		#orderBar div:hover {
-			background: #3cb0fd;
-			background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+		.buttons:hover{
+			background-color:#0F431D ;
 			text-decoration: none;
 			cursor:pointer;
 		}
 		
+		#chosenRobot{
+			margin-bottom: 10px;
+		}
+
+		#tooltip{
+			font-style: italic;
+		}
 		
 	#inspector{
 		position: absolute;
@@ -173,6 +176,7 @@
 	}
 	#sectionInfo{
 		display: none;
+		margin-top:5px;
 	}
 
 	#good{
@@ -182,77 +186,75 @@
 
    </HEAD>
 <BODY>
+	<div id="topBar">Warehouse Client v1.0</div>
    	<div id="live_stream">Put live-stream here</div>
 
    	<div id="mapWrapper">
-   		<div id="horizLine"></div>
-		<div id="vertLine"></div>	
-		<div id="outerLine"></div>
 		<div class="robot" id="r1">R1</div>
 		<div class="robot" id="r2">R2</div>
 	   	<table id="mapTable" cellspacing="0">
 			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td>0,6</td>
+				<td>1,6</td>
+				<td>2,6</td>
+				<td>3,6</td>
+				<td>4,6</td>
+				<td>5,6</td>
+				<td>6,6</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="section">r1,c1</td>
-				<td class="section">r1,c2</td>
-				<td ></td>
-				<td class="section">r1,c3</td>
-				<td class="section">r1,c4</td>
-				<td></td>
+				<td>0,5</td>
+				<td class="section">1,5</td>
+				<td class="section">2,5</td>
+				<td >3,5</td>
+				<td class="section">4,5</td>
+				<td class="section">5,5</td>
+				<td>6,5</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="section">r2,c1</td>
-				<td class="section">r2,c2</td>
-				<td ></td>
-				<td class="section">r2,c3</td>
-				<td class="section">r2,c4</td>
-				<td></td>
+				<td>0,4</td>
+				<td class="section">1,4</td>
+				<td class="section">2,4</td>
+				<td >3,4</td>
+				<td class="section">4,4</td>
+				<td class="section">5,4</td>
+				<td>6,4</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td>0,3</td>
+				<td>1,3</td>
+				<td>2,3</td>
+				<td>3,3</td>
+				<td>4,3</td>
+				<td>5,3</td>
+				<td>6,3</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="section">r3,c1</td>
-				<td class="section">r3,c2</td>
-				<td ></td>
-				<td class="section">r3,c3</td>
-				<td class="section">r3,c4</td>
-				<td></td>
+				<td>0,2</td>
+				<td class="section">1,2</td>
+				<td class="section">2,2</td>
+				<td >3,2</td>
+				<td class="section">4,2</td>
+				<td class="section">5,2</td>
+				<td>6,2</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td class="section">r4,c1</td>
-				<td class="section">r4,c2</td>
-				<td ></td>
-				<td class="section">r4,c3</td>
-				<td class="section">r4,c4</td>
-				<td></td>
+				<td>0,1</td>
+				<td class="section">1,1</td>
+				<td class="section">2,1</td>
+				<td >3,1</td>
+				<td class="section">4,1</td>
+				<td class="section">5,1</td>
+				<td>6,1</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td>0,0</td>
+				<td>1,0</td>
+				<td>2,0</td>
+				<td>3,0</td>
+				<td>4,0</td>
+				<td>5,0</td>
+				<td>6,0</td>
 			</tr>
 		</table>
 	</div>
@@ -275,14 +277,21 @@
    	</div>
 
    	<div id="orderBar">
-
-   		<div id="moveButton">Move</div>
-   		<div id="getGoodButton">Get good</div>
-   		<div id="placeGoodButton">Place good</div>
+   		<h2 id="chosenRobot"></h2>
+   		<div class="buttons" id="moveButton">Move</div>
+   		<div class="buttons" id="getGoodButton">Get good</div>
+   		<div class="buttons" id="placeGoodButton">Place good</div><br/>
+   		<h2 id="order" style="margin-top:20px;"></h2>
+   		<span id="tooltip"></span>
+   		<div class="buttons" id="submitButton">Submit</div>
    	</div>
 
 	<script>
-	
+	var moveOrder = false;
+	var getGoodOrder = false;
+	var placeGoodOrder = false;
+	var orderDone = false;
+
 	window.setInterval(function(){
 		$.get( "http://localhost:3000/robots", function( data ) {
         	var robots = JSON.parse(data);
@@ -294,23 +303,23 @@
         },"text");
 	}, 3000);
 
+	
+	$('.section').click(function(){
 
-	$('.section').click( function(){
 		var mySection = null;
-		var clickedRow = this.innerHTML.substring(1,2);
-		var clickedColumn = this.innerHTML.substring(4,5);
+		var clickedX = this.innerHTML.substring(0,1);
+		var clickedY = this.innerHTML.substring(2,3);
 		var sections;
-
         $.get( "http://localhost:3000/db", function( data ) {
         	sections = JSON.parse(data);
         	for (var i = 0; i < sections.length; i++){
-  				if (sections[i].row == clickedRow && sections[i].column == clickedColumn ){
+  				if (sections[i].x_coord == clickedX && sections[i].y_coord == clickedY ){
   					mySection = sections[i];
   				}
 			}
         	if(mySection != null){
 				$('#sectionInfo').show();
-				$('#chosenSection').html('Section: ' + ((mySection.row-1)*4+mySection.column));
+				$('#chosenSection').html('Section at: (' + mySection.x_coord + ', ' + mySection.y_coord+')');
 				$('#sectionStatus').html('Status: ' + mySection.status);
 				$('#sectionTemperature').html('Temperature: ' + mySection.temperature + '&degc');
 				$('#sectionLighting').html('Lighting: ' + mySection.lighting + ' Lumen');
@@ -328,17 +337,52 @@
         },"text");
     });
 
-    $('.robot').click( function(){
+    $('.robot').click( function(e){
 		$('#orderBar').show();
+		$('#chosenRobot').html('Selected Robot ' + e.target.innerHTML.substring(1,2));
     });
 		
-	$(document).click(function(e) {
-    	var target = e.target;
-
-    	if (!$(target).is('.robot')) {
-        	$('#orderBar').hide();
-    	}
+	$('#moveButton').click(function() {
+		moveOrder = true;
+    	$('#order').html('Move robot to coordinate: ');
+    	$('#tooltip').html('Select a path tile on the map where you would like the robot to move.');
 	});
+
+	$('#getGoodButton').click(function() {
+    	
+	});
+
+	$('#placeGoodButton').click(function() {
+    	
+	});
+
+	$('td').click(function() {
+    	if (moveOrder) {
+    		var clickedX = this.innerHTML.substring(0,1);
+			var clickedY = this.innerHTML.substring(2,3);
+    	};
+    	$('#order').html('Move robot to coordinate: ('+ clickedX +','+clickedY+').');
+    	$('#submitButton').show();
+
+	});
+
+	$('#submitButton').click(function() {
+    	$('#order').html('Order submitted!');
+    	$('#tooltip').html('');
+	});
+
+	// $(document).click(function(e) {
+ //    	var target = e.target;
+
+ //    	if (!$(target).is('.robot') || !$(target).is('#orderBar')) {	
+ //        	$('#orderBar').hide();
+        	
+ //    	} if (!$(target).is('.section')) {
+ //    		$('#sectionInfo').hide(); 
+ //    	} 
+	// });
+
+	
 
 	</script>
 </BODY>
