@@ -1,3 +1,1 @@
-{"x_coordinate":0,
-"y_coordinate":0,
-"orders":[]}
+{"coordinate":"(0,0)"}

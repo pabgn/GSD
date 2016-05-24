@@ -297,13 +297,13 @@
 	var fromCoordinate;
 
 	window.setInterval(function(){
-		$.get( "http://localhost:3000/robots", function( data ) {
+		$.get( "http://localhost:3000/robot", function( data ) {
         	var robots = JSON.parse(data);
  
 
         	$('#r1').animate({ "left": ((robots[0].x_coordinate)*50).toString() +'px',"bottom": ((robots[0].y_coordinate)*50).toString() +'px'}, "slow" );
  
-        	$('#r2').animate({ "left": ((robots[1].x_coordinate)*50).toString() +'px',"bottom": ((robots[1].y_coordinate)*50).toString() +'px'}, "slow" );
+        	//$('#r2').animate({ "left": ((robots[1].x_coordinate)*50).toString() +'px',"bottom": ((robots[1].y_coordinate)*50).toString() +'px'}, "slow" );
         },"text");
 	}, 3000);
 
@@ -405,11 +405,11 @@
     	$('#order').html('Order submitted!');
     	$('#tooltip').html('');
     	if (moveOrder) {
-    		$.get( "http://localhost:3000/robot/"+"move"+moveCoordinate, function( data ) {
+    		$.get( "http://localhost:3000/robot/"+"move "+moveCoordinate, function( data ) {
         	alert(data);
         },"text");
     	} if (placeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/"+"placeGood"+fromCoordinate+","+toCoordinate, function( data ) {
+    		$.get( "http://localhost:3000/robot/"+"placeGood "+fromCoordinate+" "+toCoordinate, function( data ) {
         	alert(data);
         },"text");
     	};
