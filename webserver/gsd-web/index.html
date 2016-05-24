@@ -128,7 +128,7 @@
 	}
 		#submitButton{
 			position: absolute;
-			top:200px;
+			top:250px;
 			left:130px;	
 			background-color: #97BA1C;
 			color: #151908;
@@ -192,7 +192,7 @@
 
    	<div id="mapWrapper">
 		<div class="robot" id="r1">R1</div>
-		<div class="robot" id="r2">R2</div>
+		<!-- <div class="robot" id="r2">R2</div> -->
 	   	<table id="mapTable" cellspacing="0">
 			<tr>
 				<td>0,6</td>
@@ -280,7 +280,7 @@
    	<div id="orderBar">
    		<h2 id="chosenRobot"></h2>
    		<div class="buttons" id="moveButton">Move</div>
-   		<div class="buttons" id="getGoodButton">Get good</div>
+   		<!-- <div class="buttons" id="getGoodButton">Get good</div> -->
    		<div class="buttons" id="placeGoodButton">Place good</div><br/>
    		<h2 id="order" style="margin-top:20px;"></h2>
    		<span id="tooltip"></span>
@@ -289,10 +289,12 @@
 
 	<script>
 	var moveOrder = false;
-	var getGoodOrder = false;
+	var hasGood = false;
 	var placeGoodOrder = false;
 	var orderDone = false;
-	var orderCoordinate;
+	var moveCoordinate;
+	var toCoordinate;
+	var fromCoordinate;
 
 	window.setInterval(function(){
 		$.get( "http://localhost:3000/robots", function( data ) {
@@ -346,26 +348,19 @@
 		
 	$('#moveButton').click(function() {
 		getGoodOrder = false;
-		placeGoodOrder = false;
+		hasGood = false;
 		moveOrder = true;
     	$('#order').html('Move robot to coordinate: ');
     	$('#tooltip').html('Select a path tile on the map where you would like the robot to move.');
 	});
 
-	$('#getGoodButton').click(function() {
-    	moveOrder = false;
-		placeGoodOrder = false;
-    	getGoodOrder = true;
-    	$('#order').html('Make the robot get the good on coordinate: ');
-    	$('#tooltip').html('Select a storage tile on the map where you would like the robot to get the good at.');
-	});
 
 	$('#placeGoodButton').click(function() {
 		moveOrder = false;
-		getGoodOrder = false;
+		hasGood = false;
     	placeGoodOrder = true;
-    	$('#order').html('Make the robot place its good on coordinate: ');
-    	$('#tooltip').html('Select a storage tile on the map where you would like the robot to place its good at.');
+    	$('#order').html('Make the robot change place of the good on coordinate: (x1,y1) , to coordinate: (x2,y2)');
+    	$('#tooltip').html('Select a storage tile on the map where you would like the robot to pick up a good to change its location.');
 	});
 
 	$('td').click(function(e) {
@@ -375,27 +370,30 @@
     		if ($(e.target).is('.section')) {
     			alert("The robot can only be moved to path tiles.")
     		} else{
-    			orderCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Move robot to coordinate: '+orderCoordinate+'.');
+    			moveCoordinate = "("+clickedX+","+clickedY+")"
+    			$('#order').html('Move robot to coordinate: '+moveCoordinate+'.');
 				$('#submitButton').show();
     		};			
-    	} if (getGoodOrder) {
-    		if (!$(e.target).is('.section')) {
-    			alert("Goods can only be in storage tiles.")
-    		} else{
-    			orderCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Make robot get the good on coordinate: '+orderCoordinate+'.');
-				$('#submitButton').show();
+    	}  if (placeGoodOrder) {
+    		if (hasGood) {
+    			if (!$(e.target).is('.section')) {
+	    			alert("Goods can only be placed in storage tiles.");
+	    		} else{
+	    			toCoordinate = "("+clickedX+","+clickedY+")";
+	    			$('#order').html('Make the robot change place of the good on coordinate: '+ fromCoordinate +', to coordinate: '+toCoordinate);
+					$('#submitButton').show();
+				};
+    		} else {
+    			if (!$(e.target).is('.section')) {
+	    			alert("Goods can only be found in storage tiles.")
+	    		} else{
+	    			fromCoordinate = "("+clickedX+","+clickedY+")"
+	    			$('#order').html('Make the robot change place of the good on coordinate: '+ fromCoordinate +', to coordinate: (x2,y2)');
+    				$('#tooltip').html('Select a storage tile on the map where you would like the robot place the good its carrying.');
+    				hasGood = true;
+	    		};
     		};
-			
-    	} if (placeGoodOrder) {
-    		if (!$(e.target).is('.section')) {
-    			alert("Goods can only be placed in storage tiles.")
-    		} else{
-    			orderCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Make robot place good on coordinate: '+orderCoordinate+'.');
-				$('#submitButton').show();
-			};
+    		
     		
     	};
     	
@@ -407,15 +405,11 @@
     	$('#order').html('Order submitted!');
     	$('#tooltip').html('');
     	if (moveOrder) {
-    		$.get( "http://localhost:3000/robot/"+"move"+orderCoordinate, function( data ) {
-        	alert(data);
-        },"text");
-    	} if (getGoodOrder) {
-    		$.get( "http://localhost:3000/robot/"+"getGood"+orderCoordinate, function( data ) {
+    		$.get( "http://localhost:3000/robot/"+"move"+moveCoordinate, function( data ) {
         	alert(data);
         },"text");
     	} if (placeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/"+"placeGood"+orderCoordinate, function( data ) {
+    		$.get( "http://localhost:3000/robot/"+"placeGood"+fromCoordinate+","+toCoordinate, function( data ) {
         	alert(data);
         },"text");
     	};
