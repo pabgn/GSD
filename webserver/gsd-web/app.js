@@ -51,22 +51,19 @@ app.get('/order/pop', function (req, res) {
 		if (err) throw err;
 		obj = JSON.parse(data);
 		
-		if(obj.length() > 0){
-			order = obj.shift();
-			fs.writeFile('./orders.js', JSON.stringify(obj), function (err) {
-				if (err) return console.log(err);
-				console.log('Popped'+ JSON.stringify(order) + 'from ./orders.js');
+		order = obj.shift();
+		fs.writeFile('./orders.js', JSON.stringify(obj), function (err) {
+			if (err) return console.log(err);
+			console.log('Popped: "'+ JSON.stringify(order) + '" from ./orders.js');
+			if (order == undefined) {
+				res.send("empty");
+			} else{
 				res.send(JSON.stringify(order));
-			});
-		} else {
-			res.send('empty');
-			console.log('There are no orders left in ./orders.js');
-		}
-
-		
+			};
+		});
 	});
 });
 
 app.listen(3000, function () {
-	console.log('Example app listening on port 3000!');
+	console.log('Warehouse webserver listening on port 3000!');
 });
