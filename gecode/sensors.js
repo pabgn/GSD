@@ -1,0 +1,17 @@
+[
+	{
+		"id":1,
+		"temperature":10,
+		"lighting":100
+	},
+	{
+		"id":2,
+		"temperature":20,
+		"lighting":120
+	},
+	{
+		"id":3,
+		"temperature":30,
+		"lighting":100
+	}
+]
