@@ -68,7 +68,7 @@
 		border:1px solid black;
 		position: absolute;
 		top:200px;
-		left:150px;
+		left:50px;
 	}	
 
 	#mapWrapper{
@@ -87,36 +87,51 @@
 		z-index: 10;
 	}
 
-	td{ 
-		z-index: 100;
-		width:50px;
-		height:50px;
-		text-align: center;
-		color:#16301D;
-		-webkit-user-select: none; /* Chrome/Safari */        
-		-moz-user-select: none; /* Firefox */
-		-ms-user-select: none; /* IE10+ */
-		background-color: #16301D;
-	}
-	td:hover{
-		background-color: #9C914D;
-		color: #9C914D;
-	}
+		td{ 
+			z-index: 100;
+			width:50px;
+			height:50px;
+			text-align: center;
+			-webkit-user-select: none; /* Chrome/Safari */        
+			-moz-user-select: none; /* Firefox */
+			-ms-user-select: none; /* IE10+ */
+			background-color: #808597;
+			color:#808597;
+		}
+		.tdHover:hover{
+			background-color: #9C914D;
+			color: #9C914D;
+		}
 
-	.section{
-		background-color: #2C2F21;
-		color:#2C2F21;
-		width:46px;
-		height:46px;
-		border:1px solid black;
+		.section{
+			background-color: #2C2F21;
+			color:#2C2F21;
+			width:46px;
+			height:46px;
+			border:1px solid black;
 
-	}
+		}
 
-	.section:hover{
-		cursor: pointer;
-		background-color: #494B42;
-		color:#494B42;
-	}
+		.sectionHover:hover{
+			cursor: pointer;
+			background-color: #494B42;
+			color:#494B42;
+		}
+
+		.occupied{
+			background-color: #873140;
+			color:#873140;
+		}
+
+		#dropZone{
+			background-color: #8B7077;
+			color:#8B7077;
+		}
+
+		#addZone{
+			background-color: #8B9175;
+			color:#8B9175;
+		}
 
 	#orderBar{
 		display: none;
@@ -183,86 +198,129 @@
 	#good{
 		display: none;
 	}
+
+	#legend{
+		position: absolute;
+		left: 1000px;
+		top:420px;
+		font-weight: bold;
+	}
+		#legend div{
+			position: absolute;
+			top:30px;
+			left:60px;
+			width: 200px;
+		}
+
+			#legend div span{
+				margin-bottom: 50px;
+			}
 	</style>
 
    </HEAD>
 <BODY>
 	<div id="topBar">Warehouse Client v1.0</div>
    	<div id="live_stream">Put live-stream here</div>
+   	<div id="legend">Legend: 
+   		<table>
+   			<tr>
+   				<td id="dropZone"></td>
+   			</tr>
+   			<tr>
+   				<td id="addZone"></td>
+   			</tr>
+   			<tr>
+   				<td class="occupied"></td>
+   			</tr>
+   			<tr>
+   				<td class="section"></td>
+   			</tr>
+   			<tr>
+   				<td></td>
+   			</tr>
 
+   		</table>
+   		<div>
+	   		<span>Drop Zone</span><br/><br/><br/>
+	   		<span>Pickup Zone</span><br/><br/><br/>
+	   		<span>Occupied Space</span><br/><br/><br/>
+	   		<span>Free Space</span><br/><br/><br/>
+	   		<span>Path Tile</span>
+   		</div>
+   	</div>
    	<div id="mapWrapper">
 		<div class="robot" id="r1">R1</div>
 		<!-- <div class="robot" id="r2">R2</div> -->
 	   	<table id="mapTable" cellspacing="0">
 			<tr>
-				<td>0,6</td>
-				<td>1,6</td>
-				<td>2,6</td>
-				<td>3,6</td>
-				<td>4,6</td>
-				<td>5,6</td>
-				<td>6,6</td>
+				<td class="tdHover">0,6</td>
+				<td class="tdHover">1,6</td>
+				<td class="tdHover">2,6</td>
+				<td class="tdHover">3,6</td>
+				<td class="tdHover">4,6</td>
+				<td class="tdHover">5,6</td>
+				<td class="tdHover">6,6</td>
 			</tr>
 			<tr>
-				<td>0,5</td>
-				<td class="section">1,5</td>
-				<td class="section">2,5</td>
-				<td >3,5</td>
-				<td class="section">4,5</td>
-				<td class="section">5,5</td>
-				<td>6,5</td>
+				<td class="tdHover">0,5</td>
+				<td class="section sectionHover">1,5</td>
+				<td class="section sectionHover">2,5</td>
+				<td class="tdHover" >3,5</td>
+				<td class="section sectionHover">4,5</td>
+				<td class="section sectionHover">5,5</td>
+				<td class="tdHover">6,5</td>
 			</tr>
 			<tr>
-				<td>0,4</td>
-				<td class="section">1,4</td>
-				<td class="section">2,4</td>
-				<td >3,4</td>
-				<td class="section">4,4</td>
-				<td class="section">5,4</td>
-				<td>6,4</td>
+				<td class="tdHover">0,4</td>
+				<td class="section sectionHover">1,4</td>
+				<td class="section sectionHover">2,4</td>
+				<td class="tdHover">3,4</td>
+				<td class="section sectionHover">4,4</td>
+				<td class="section sectionHover">5,4</td>
+				<td class="tdHover">6,4</td>
 			</tr>
 			<tr>
-				<td>0,3</td>
-				<td>1,3</td>
-				<td>2,3</td>
-				<td>3,3</td>
-				<td>4,3</td>
-				<td>5,3</td>
-				<td>6,3</td>
+				<td class="tdHover">0,3</td>
+				<td class="tdHover">1,3</td>
+				<td class="tdHover">2,3</td>
+				<td class="tdHover">3,3</td>
+				<td class="tdHover">4,3</td>
+				<td class="tdHover">5,3</td>
+				<td class="tdHover">6,3</td>
 			</tr>
 			<tr>
-				<td>0,2</td>
-				<td class="section">1,2</td>
-				<td class="section">2,2</td>
-				<td >3,2</td>
-				<td class="section">4,2</td>
-				<td class="section">5,2</td>
-				<td>6,2</td>
+				<td class="tdHover">0,2</td>
+				<td class="section sectionHover">1,2</td>
+				<td class="section sectionHover">2,2</td>
+				<td class="tdHover">3,2</td>
+				<td class="section sectionHover">4,2</td>
+				<td class="section sectionHover">5,2</td>
+				<td class="tdHover">6,2</td>
 			</tr>
 			<tr>
-				<td>0,1</td>
-				<td class="section">1,1</td>
-				<td class="section">2,1</td>
-				<td >3,1</td>
-				<td class="section">4,1</td>
-				<td class="section">5,1</td>
-				<td>6,1</td>
+				<td class="tdHover">0,1</td>
+				<td class="section sectionHover" id="addZone">1,1</td>
+				<td class="section sectionHover" id="dropZone">2,1</td>
+				<td class="tdHover">3,1</td>
+				<td class="section sectionHover">4,1</td>
+				<td class="section sectionHover">5,1</td>
+				<td class="tdHover">6,1</td>
 			</tr>
 			<tr>
-				<td>0,0</td>
-				<td>1,0</td>
-				<td>2,0</td>
-				<td>3,0</td>
-				<td>4,0</td>
-				<td>5,0</td>
-				<td>6,0</td>
+				<td class="tdHover">0,0</td>
+				<td class="tdHover">1,0</td>
+				<td class="tdHover">2,0</td>
+				<td class="tdHover">3,0</td>
+				<td class="tdHover">4,0</td>
+				<td class="tdHover">5,0</td>
+				<td class="tdHover">6,0</td>
 			</tr>
 		</table>
 	</div>
 
    	<div id="inspector">
    		<h1>Inspector</h1>
-   		<h2 id="chosenSection">Section:</h2>
+   		<h2 id="chosenSection">section:</h2>
    		<div id="sectionInfo">
    			<span id="sectionStatus"></span><br/>
    			<span id="sectionTemperature"></span><br/>
@@ -298,12 +356,24 @@
 
 	window.setInterval(function(){
 		$.get( "http://localhost:3000/robot", function( data ) {
-        	var robots = JSON.parse(data);
+        	var robot = JSON.parse(data);
  
 
-        	$('#r1').animate({ "left": ((robots[0].x_coordinate)*50).toString() +'px',"bottom": ((robots[0].y_coordinate)*50).toString() +'px'}, "slow" );
+        	$('#r1').animate({ "left": ((robot.x_coord)*50).toString() +'px',"bottom": ((robot.y_coord)*50).toString() +'px'}, "slow" );
  
         	//$('#r2').animate({ "left": ((robots[1].x_coordinate)*50).toString() +'px',"bottom": ((robots[1].y_coordinate)*50).toString() +'px'}, "slow" );
+        },"text");
+        $.get( "http://localhost:3000/db", function( data ) {
+        	sections = JSON.parse(data);
+        	for (var i = 0; i < sections.length; i++){
+  				if (sections[i].status == "occupied") {
+  					s = sections[i].x_coord+','+sections[i].y_coord;
+  					$(".section:contains('" + s + "')").addClass("occupied");
+  				} else {
+  					s = sections[i].x_coord+','+sections[i].y_coord;
+  					$("td:contains('" + s + "')").removeClass( "occupied" );
+  				};
+			}
         },"text");
 	}, 3000);
 
@@ -319,8 +389,9 @@
         	for (var i = 0; i < sections.length; i++){
   				if (sections[i].x_coord == clickedX && sections[i].y_coord == clickedY ){
   					mySection = sections[i];
-  				}
-			}
+  				};
+			};
+
         	if(mySection != null){
 				$('#sectionInfo').show();
 				$('#chosenSection').html('Section at: (' + mySection.x_coord + ', ' + mySection.y_coord+')');
