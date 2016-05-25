@@ -1,5 +1,6 @@
 {
-   "orientation" : 1,
+   "backward" : true,
+   "orientation" : 2,
    "x_coord" : 1,
-   "y_coord" : 0
+   "y_coord" : 3
 }

@@ -65,7 +65,23 @@ int __robotFinalOrientation;
 bool __robotBoolMoving = false;
 int __robotBoolMovingPos;
 
+bool __robotBoolPlaceGood = false;
+int __robotBoolPlaceGoodFromPos;
+int __robotBoolPlaceGoodNumber;
+int __robotBoolPlaceGoodToPos;
 
+bool __robotBoolAddGood = false;
+
+bool __robotBoolDropGood = false;
+int __robotBoolDropGoodFromPos;
+int __robotBoolDropGoodNumber;
+
+bool __boolDummyGood = false;
+
+bool __robotLastBackwardBefore = false;
+bool __robotLastBackwardAfter = false;
+
+bool __foundSolution = false;
 
 
 class Warehouse : public IntMinimizeScript {
@@ -146,8 +162,8 @@ public:
   Warehouse(const Options& opt) : IntMinimizeScript(opt),
   robotTasks(*this,maxTasks,0,4),
   robotTasksBoolArray(*this,maxTasks*5,0,1),
-  robotTasksCost(*this,maxTasks,0,500),
-  robotCost(*this,0,500),
+  robotTasksCost(*this,maxTasks,0,1),
+  robotCost(*this,0,100),
   robotPositionsStart(*this,maxTasks,0,48),
   robotPositionsStartBoolArray(*this,maxTasks*49,0,1),
   robotPositionsEnd(*this,maxTasks,0,48),
@@ -163,9 +179,9 @@ public:
   robotGoodsEnd(*this,maxTasks,-1,__numGoods-1), // -1 no goods
   goodsPositionStartArray(*this,maxTasks*__numGoods,0,48),
   goodsPositionEndArray(*this,maxTasks*__numGoods,0,48),
-  goodsPenaltyCost(*this,__numGoods,0,500),
-  penaltyCost(*this,0,500),
-  c(*this,0,1000)
+  goodsPenaltyCost(*this,__numGoods,0,100),
+  penaltyCost(*this,0,1600),
+  c(*this,0,1700)
     {
 
 
@@ -786,11 +802,18 @@ public:
           // The robot should have no good at the end.
           rel(*this, robotGoodsEnd[maxTasks-1] == -1);
 
-
-
           if (__robotBoolMoving) {
               rel(*this, robotPositionsEnd[maxTasks-1] == __robotBoolMovingPos);
+          } else if (__robotBoolPlaceGood) {
+              rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolPlaceGoodNumber) == __robotBoolPlaceGoodToPos);
+          } else if (__robotBoolAddGood) {
+              rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 8);
+              rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 15);
+          } else if (__robotBoolDropGood) {
+              rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolDropGoodNumber) == 15);
           }
+
+          // TODO: otherwise, add and drop spaces should be empty
 
           /*
 
@@ -872,6 +895,8 @@ public:
       //branch(*this, c, INT_VAL_MIN());
 
       // Branch then on the different tasks.
+      //branch(*this, robotTasks, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
+
       branch(*this, robotTasks, INT_VAR_AFC_SIZE_MIN(), INT_VAL_MIN());
 
       // Branch then on the number of moving steps for the case of a
@@ -927,7 +952,9 @@ public:
     // Additional printing
 
 
-    os << "\t" << robotTasks << std::endl;
+    //os << "\t" << robotTasks << std::endl;
+
+    __foundSolution = true;
 
     __final_output = "";
     __final_output += "INSTRUCTIONS:";
@@ -940,6 +967,7 @@ public:
     string tempPrevious = "";
     bool printPrevious = false;
     bool printCurrent = false;
+    bool afterBackward = __robotLastBackwardBefore;
 
     for (int i = 0; i < maxTasks; i++) {
 
@@ -949,18 +977,25 @@ public:
         // If the current task is a turning task, then the previous task and
         // the current task should be printed.
         if (robotTasks[i].val() == 1) {
-          temp = "TURN,1,";
+          temp = "TURN,";
+          // Checking After Backward or not
+          if (afterBackward) {
+              temp += "2,";
+          } else {
+              temp += "1,";
+          }
           // Checking if left or right
           if (robotOrientDiff[i].val() == -1) {
               temp += "LEFT";
           } else if (robotOrientDiff[i].val() == 1) {
               temp += "RIGHT";
           } else {
-            // TODO: throw excpetion
+            // TODO: throw exception
           }
           temp += ";";
           printPrevious = printCurrent && true;
           printCurrent = true;
+          afterBackward = false;
 
           // TODO: After a backward task, there should be a 2 instead of a 1.
 
@@ -973,6 +1008,7 @@ public:
             temp = "BACKWARD,1;";
             printPrevious = printCurrent && true;
             printCurrent = false;
+            afterBackward = true;
           } else {
 
             // If the current task is a normal forward task, then the current
@@ -980,9 +1016,19 @@ public:
             // steps (1 to 6) is printed, too.
             stringstream stringStreamForward;
             stringStreamForward << robotMovingForward[i].val();
-            temp = "FORWARD," + stringStreamForward.str() + ";";
+            temp = "FORWARD," + stringStreamForward.str() + ",";
+            // Adding which Sensors
+            if (robotOrientationStart[i].val() == 0 || robotOrientationStart[i].val() == 1) {
+                temp += "0"; // Right sensor
+            } else if (robotOrientationStart[i].val() == 2 || robotOrientationStart[i].val() == 3) {
+                temp += "1"; // Left sensor
+            } else {
+                // TODO: throw exception
+            }
+            temp += ";";
             printPrevious = printCurrent && true;
             printCurrent = true;
+            afterBackward = false;
           }
         }
         // If the current task is a picking task, then this task can be printed,
@@ -991,6 +1037,7 @@ public:
           temp = "PICK,1;";
           printPrevious = printCurrent && false;
           printCurrent = true;
+          afterBackward = false;
         }
         // If the current task is a dropping task, then this task can be
         // printed, but not the previous forward 1 task.
@@ -998,6 +1045,7 @@ public:
           temp = "DROP,1;";
           printPrevious = printCurrent && false;
           printCurrent = true;
+          afterBackward = false;
         }
         // Otherwise: Dont print only the previous one, but not the current
         // task.
@@ -1005,6 +1053,9 @@ public:
           temp = "";
           printPrevious = printCurrent && true;
           printCurrent = false;
+          if (robotTasks[i].val() != 0) {
+              afterBackward = false;
+          }
         }
         if (printPrevious) {
           __final_output +=  tempPrevious;
@@ -1015,6 +1066,8 @@ public:
     if (printCurrent) {
       __final_output += temp;
     }
+
+    __robotLastBackwardAfter = afterBackward;
 
     __robotFinalPosition = robotPositionsEnd[maxTasks-1].val();
     __robotFinalOrientation = robotOrientationEnd[maxTasks-1].val();
@@ -1031,7 +1084,7 @@ public:
 
     // Additional printing:
     //os << "\t" << robotPositionsStart << std::endl;
-    os << "\t" << robotPositionsEnd << std::endl;
+    //os << "\t" << robotPositionsEnd << std::endl;
     //os << "\t" << robotMovingForward << std::endl;
     //os << "\t" << robotOrientationStart << std::endl;
     //os << "\t" << robotOrientationEnd << std::endl;
@@ -1039,7 +1092,7 @@ public:
     //os << "\t" << robotGoodsEnd << std::endl;
     //os << "\t" << goodsPositionStartArray << std::endl;
     //os << "\t" << goodsPositionStartArray << std::endl;
-    os << "\t" << c << std::endl;
+    //os << "\t" << c << std::endl;
   }
 
 };
@@ -1249,6 +1302,68 @@ main(int argc, char* argv[]) {
     /// TODO: reading/parsing json files
     /// Test Initializing
 
+        // Readin stdin
+
+            Json::Value job_root;
+            std::cin >> job_root;
+
+            string job_kind = job_root.get("job", "null").asString();
+
+            if (job_kind == "moving") {
+                __robotBoolMoving = true;
+                int robot_destination_x = job_root["to"]["x_coord"].asInt();
+                int robot_destination_y = job_root["to"]["y_coord"].asInt();
+                __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
+
+                //cout << __robotBoolMovingPos << "\n";
+
+            }
+            else if (job_kind == "placeGood") {
+                __robotBoolPlaceGood = true;
+
+                int robot_from_x = job_root["from"]["x_coord"].asInt();
+                int robot_from_y = job_root["from"]["y_coord"].asInt();
+                __robotBoolPlaceGoodFromPos = robot_from_y * 7 + robot_from_x;
+
+
+
+                int robot_to_x = job_root["to"]["x_coord"].asInt();
+                int robot_to_y = job_root["to"]["y_coord"].asInt();
+                __robotBoolPlaceGoodToPos = robot_to_y * 7 + robot_to_x;
+
+            }
+            else if (job_kind == "add") {
+
+                __robotBoolAddGood = true;
+
+                // Pos (1,1) = 8
+
+            }
+            else if (job_kind == "drop") {
+
+                __robotBoolDropGood = true;
+
+                int robot_from_x = job_root["from"]["x_coord"].asInt();
+                int robot_from_y = job_root["from"]["y_coord"].asInt();
+                __robotBoolDropGoodFromPos = robot_from_y * 7 + robot_from_x;
+
+                // To Pos (1,2) = 15
+
+
+
+            }
+            else {
+                __robotBoolMoving = false;
+                __robotBoolPlaceGood = false;
+                __robotBoolAddGood = false;
+                __robotBoolDropGood = false;
+            }
+
+
+
+
+
+
         /// Parse Json Files
         Json::Value json_robot_root;   // starts as "null"; will contain the root value after parsing
         std::fstream config_robot("robot.js");
@@ -1270,15 +1385,20 @@ main(int argc, char* argv[]) {
 
         int robot_start_orientation = json_robot_root["orientation"].asInt();
 
+        bool robot_last_backward = json_robot_root["backward"].asBool();
+
         __robotStartPosition = robot_start_position;
         __robotStartOrientation = robot_start_orientation;
+        __robotLastBackwardBefore = robot_last_backward;
+
+        /*
 
         cout << "robot start row: " << robot_start_x << "\n";
         cout << "robot start column: " << robot_start_y << "\n";
         cout << "robot start position: " << robot_start_position << "\n";
         cout << "robot start orientation: " << robot_start_orientation << "\n";
 
-
+        */
 
         // Sensors
 
@@ -1295,8 +1415,8 @@ main(int argc, char* argv[]) {
 
         }
 
-        cout << sensorsTemperature << "\n";
-        cout << sensorsLight << "\n";
+        //cout << sensorsTemperature << "\n";
+        //cout << sensorsLight << "\n";
 
         // Sections and Areas
 
@@ -1322,11 +1442,29 @@ main(int argc, char* argv[]) {
             }
         }
 
+        /*
+
         cout << numGoods << "\n";
         cout << numWarehouses << "\n";
         cout << numGarage << "\n";
 
-        __numGoods = numGoods;
+        */
+
+        if (__robotBoolAddGood) {
+            __numGoods = numGoods + 1;
+        } else {
+            __numGoods = numGoods;
+        }
+
+        if (__numGoods == 0) {
+            // Create Dummy Good
+            __boolDummyGood = true;
+            __robotBoolDropGood = true;
+            __robotBoolDropGoodNumber = 0;
+            __robotBoolDropGoodFromPos = 15;
+            __numGoods = 1;
+        }
+
         __numWarehouses = numWarehouses;
         __numGarage = numGarage;
 
@@ -1379,6 +1517,26 @@ main(int argc, char* argv[]) {
             }
         }
 
+        if (__robotBoolAddGood) {
+            goodsStartingPosition[__numGoods-1] = 8; // Starting Position for Adding Goods
+            goodsName.push_back(job_root["good"]["name"].asString());
+            goodsTempMin[__numGoods-1] = job_root["good"]["desiredTemperature"]["min"].asInt();
+            goodsTempMax[__numGoods-1] = job_root["good"]["desiredTemperature"]["max"].asInt();
+            goodsLightMin[__numGoods-1] = job_root["good"]["desiredLighting"]["min"].asInt();
+            goodsLightMax[__numGoods-1] = job_root["good"]["desiredLighting"]["max"].asInt();
+        }
+
+        if (__boolDummyGood) {
+
+            goodsStartingPosition[__numGoods-1] = 15; // Starting Position for Dropping Goods
+            goodsName.push_back("DummyGood");
+            goodsTempMin[__numGoods-1] = -100;
+            goodsTempMax[__numGoods-1] = 2000;
+            goodsLightMin[__numGoods-1] = -1000;
+            goodsLightMax[__numGoods-1] = 2000;
+
+        }
+
         __goodsStartingPosition = goodsStartingPosition;
         __goodsTempMin = goodsTempMin;
         __goodsTempMax = goodsTempMax;
@@ -1390,6 +1548,7 @@ main(int argc, char* argv[]) {
         __warehousePosition = warehousePosition;
         __garagePosition = garagePosition;
 
+        /*
         cout << __goodsStartingPosition << "\n";
         cout << __goodsTempMin << "\n";
         cout << __goodsTempMax << "\n";
@@ -1399,35 +1558,37 @@ main(int argc, char* argv[]) {
         cout << __warehouseLight << "\n";
         cout << __warehousePosition << "\n";
         cout << __garagePosition << "\n";
+        */
 
+        if (job_kind == "placeGood") {
+            bool checkFindGood = false;
 
-        Json::Value job_root;
-        std::cin >> job_root;
-
-
-            cout << job_root << "\n";
-
-            string job_kind = job_root.get("job", "null").asString();
-
-            if (job_kind == "moving") {
-                __robotBoolMoving = true;
-                int robot_destination_x = job_root["destination"]["x_coord"].asInt();
-                int robot_destination_y = job_root["destination"]["y_coord"].asInt();
-
-                __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
-
-                cout << __robotBoolMovingPos << "\n";
-
-            }
-            else if (job_kind == "pickDrop") {
-
-            }
-            else {
-                __robotBoolMoving = false;
-
+            for (int j = 0; j < __numGoods; j++) {
+                if (__goodsStartingPosition[j] == __robotBoolPlaceGoodFromPos) {
+                    __robotBoolPlaceGoodNumber = j;
+                    //cout << __robotBoolPlaceGoodNumber << "\n";
+                    checkFindGood = true;
+                }
             }
 
+            if (!(checkFindGood)) {
+                __robotBoolPlaceGood = false;
+            }
+        } else if (job_kind == "drop") {
 
+            bool checkFindGood = false;
+
+            for (int j = 0; j < __numGoods; j++) {
+                if (__goodsStartingPosition[j] == __robotBoolDropGoodFromPos) {
+                    __robotBoolDropGoodNumber = j;
+                    checkFindGood = true;
+                }
+            }
+
+            if (!(checkFindGood)) {
+                __robotBoolDropGood = false;
+            }
+        }
 
 
 
@@ -1536,7 +1697,7 @@ main(int argc, char* argv[]) {
 
 */
 
-    cout << "Test" << endl;
+    //cout << "Test" << endl;
 
     /// Running the script with a dept-first-search
     Options opt("");
@@ -1544,64 +1705,95 @@ main(int argc, char* argv[]) {
     opt.parse(argc,argv);
     ScriptOutput::run<Warehouse,BAB,Options>(opt);
 
-    cout << __final_output << endl;
+    if (__foundSolution) {
 
-    // Updating files
+            cout << __final_output << endl;
 
-    // Updating Robot
+            // Updating files
 
-    json_robot_root["x_coord"] = __robotFinalPosition % 7;
-    json_robot_root["y_coord"] = __robotFinalPosition / 7;
-    json_robot_root["orientation"] = __robotFinalOrientation;
+            // Updating Robot
 
-    Json::StyledWriter styledWriter;
-    std::ofstream ofs;
-    ofs.open("robot.js", std::ofstream::out | std::ofstream::trunc);
-    ofs << styledWriter.write(json_robot_root);
-    ofs.close();
+            json_robot_root["x_coord"] = __robotFinalPosition % 7;
+            json_robot_root["y_coord"] = __robotFinalPosition / 7;
+            json_robot_root["orientation"] = __robotFinalOrientation;
+            json_robot_root["backward"] = __robotLastBackwardAfter;
 
-    // Updating Sections
+            Json::StyledWriter styledWriter;
+            std::ofstream ofs;
+            ofs.open("robot.js", std::ofstream::out | std::ofstream::trunc);
+            ofs << styledWriter.write(json_robot_root);
+            ofs.close();
 
-
-    for ( int i = 0; i < json_sections_root.size(); ++i ){
-        int cur_x = json_sections_root[i]["x_coord"].asInt();
-        int cur_y = json_sections_root[i]["y_coord"].asInt();
-        int cur_pos = cur_y * 7 + cur_x;
-
-        bool isOccupied = false;
+            // Updating Sections
 
 
-        for (int j = 0; j < __numGoods; j++) {
-            if (__goodsEndPositions[j] == cur_pos) {
-                isOccupied = true;
-                json_sections_root[i]["status"] = "occupied";
-                Json::Value good;
-                good["name"] = goodsName[j].c_str();
-                Json::Value good_temp;
-                good_temp["min"] = __goodsTempMin[j];
-                good_temp["max"] = __goodsTempMax[j];
-                good["desiredTemperature"] = good_temp;
-                Json::Value good_light;
-                good_light["min"] = __goodsLightMin[j];
-                good_light["max"] = __goodsLightMax[j];
-                good["desiredLighting"] = good_light;
-                json_sections_root[i]["good"] = good;
+            for ( int i = 0; i < json_sections_root.size(); ++i ){
+                int cur_x = json_sections_root[i]["x_coord"].asInt();
+                int cur_y = json_sections_root[i]["y_coord"].asInt();
+                int cur_pos = cur_y * 7 + cur_x;
+
+                bool isOccupied = false;
+
+
+                for (int j = 0; j < __numGoods; j++) {
+                    if (__robotBoolDropGood) {
+                        if (__goodsEndPositions[j] == cur_pos && j != __robotBoolDropGoodNumber) {
+                            isOccupied = true;
+                            json_sections_root[i]["status"] = "occupied";
+                            Json::Value good;
+                            good["name"] = goodsName[j].c_str();
+                            Json::Value good_temp;
+                            good_temp["min"] = __goodsTempMin[j];
+                            good_temp["max"] = __goodsTempMax[j];
+                            good["desiredTemperature"] = good_temp;
+                            Json::Value good_light;
+                            good_light["min"] = __goodsLightMin[j];
+                            good_light["max"] = __goodsLightMax[j];
+                            good["desiredLighting"] = good_light;
+                            json_sections_root[i]["good"] = good;
+                        }
+                    } else {
+                        if (__goodsEndPositions[j] == cur_pos) {
+                            isOccupied = true;
+                            json_sections_root[i]["status"] = "occupied";
+                            Json::Value good;
+                            good["name"] = goodsName[j].c_str();
+                            Json::Value good_temp;
+                            good_temp["min"] = __goodsTempMin[j];
+                            good_temp["max"] = __goodsTempMax[j];
+                            good["desiredTemperature"] = good_temp;
+                            Json::Value good_light;
+                            good_light["min"] = __goodsLightMin[j];
+                            good_light["max"] = __goodsLightMax[j];
+                            good["desiredLighting"] = good_light;
+                            json_sections_root[i]["good"] = good;
+                        }
+                    }
+
+                }
+
+
+                if (!(isOccupied)) {
+                    json_sections_root[i]["status"] = "free";
+                    json_sections_root[i]["good"] = false;
+                }
+
             }
-        }
+
+            Json::StyledWriter styledWriterSections;
+            std::ofstream ofsSections;
+            ofsSections.open("sections.js", std::ofstream::out | std::ofstream::trunc);
+            ofsSections << styledWriterSections.write(json_sections_root);
+            ofsSections.close();
 
 
-        if (!(isOccupied)) {
-            json_sections_root[i]["status"] = "free";
-            json_sections_root[i]["good"] = false;
-        }
+
+    } else {
+
+        cout << "INSTRUCTIONS:" << endl;
 
     }
 
-    Json::StyledWriter styledWriterSections;
-    std::ofstream ofsSections;
-    ofsSections.open("sections.js", std::ofstream::out | std::ofstream::trunc);
-    ofsSections << styledWriterSections.write(json_sections_root);
-    ofsSections.close();
 
 
     return 0;

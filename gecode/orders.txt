@@ -1,0 +1,54 @@
+EXAMPLE ORDERS:
+
+echo ' {
+"job" : "add",
+"good" : {
+        "desiredLighting" : {
+           "max" : 200,
+           "min" : 80
+        },
+        "desiredTemperature" : {
+           "max" : 8,
+           "min" : 12
+        },
+        "name" : "Spezi"
+     }
+} ' | ./warehouse
+
+
+echo ' {
+"job" : "drop",
+"from" : {
+        "x_coord" : 2,
+        "y_coord" : 4
+     }
+} ' | ./warehouse
+
+
+echo ' {
+"job" : "moving",
+"to" : {
+        "x_coord" : 0,
+        "y_coord" : 0
+     }
+} ' | ./warehouse
+
+
+
+echo ' {
+"job" : "placeGood",
+"from" : {
+        "x_coord" : 1,
+        "y_coord" : 5
+    },
+"to" : {
+        "x_coord" : 2,
+        "y_coord" : 4
+     }
+} ' | ./warehouse
+
+
+echo 'null' | ./warehouse
+
+
+["move (0,3)","placeGood (2,1) (5,1)"]

@@ -42,9 +42,19 @@
       "y_coord" : 2
    },
    {
-      "good" : false,
+      "good" : {
+         "desiredLighting" : {
+            "max" : 200,
+            "min" : 80
+         },
+         "desiredTemperature" : {
+            "max" : 30,
+            "min" : 0
+         },
+         "name" : "Fanta"
+      },
       "sensor" : 3,
-      "status" : "free",
+      "status" : "occupied",
       "x_coord" : 4,
       "y_coord" : 2
    },
@@ -56,13 +66,6 @@
       "y_coord" : 2
    },
    {
-      "good" : false,
-      "sensor" : 1,
-      "status" : "free",
-      "x_coord" : 1,
-      "y_coord" : 4
-   },
-   {
       "good" : {
          "desiredLighting" : {
             "max" : 200,
@@ -72,10 +75,17 @@
             "max" : 12,
             "min" : 8
          },
-         "name" : "Coca-cola"
+         "name" : "Cola"
       },
       "sensor" : 1,
       "status" : "occupied",
+      "x_coord" : 1,
+      "y_coord" : 4
+   },
+   {
+      "good" : false,
+      "sensor" : 1,
+      "status" : "free",
       "x_coord" : 2,
       "y_coord" : 4
    },
@@ -94,19 +104,9 @@
       "y_coord" : 4
    },
    {
-      "good" : {
-         "desiredLighting" : {
-            "max" : 200,
-            "min" : 80
-         },
-         "desiredTemperature" : {
-            "max" : 12,
-            "min" : 8
-         },
-         "name" : "Fanta"
-      },
+      "good" : false,
       "sensor" : 1,
-      "status" : "occupied",
+      "status" : "free",
       "x_coord" : 1,
       "y_coord" : 5
    },
