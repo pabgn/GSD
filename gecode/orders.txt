@@ -3,21 +3,21 @@ EXAMPLE ORDERS:
 echo ' {
 "job" : "add",
 "good" : {
-        "desiredLighting" : {
-           "max" : 200,
-           "min" : 80
-        },
+        "name" : "Spezi",
         "desiredTemperature" : {
            "max" : 8,
            "min" : 12
-        },
-        "name" : "Spezi"
+        },   
+        "desiredLighting" : {
+           "max" : 200,
+           "min" : 80
+        }        
      }
 } ' | ./warehouse
 
 
 echo ' {
-"job" : "drop",
+"job" : "remove",
 "from" : {
         "x_coord" : 2,
         "y_coord" : 4
@@ -26,7 +26,7 @@ echo ' {
 
 
 echo ' {
-"job" : "moving",
+"job" : "move",
 "to" : {
         "x_coord" : 0,
         "y_coord" : 0

@@ -247,7 +247,9 @@
    </HEAD>
 <BODY>
 	<div id="topBar">Warehouse Client v1.0</div>
-   	<div id="live_stream">Put live-stream here</div>
+   	<div id="live_stream">
+   		<!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/nI-5At4dwyU" frameborder="0" allowfullscreen></iframe> -->
+   	</div>
    	<div id="legend">Legend: 
    		<table>
    			<tr>
@@ -375,7 +377,7 @@
    	</div>
    	<div id="goodForm" >
    		<h2>Add Good</h2><br/><br/>
-   		<form action="add" method="get">
+   		<form onsubmit="subtmitForm(); return false;">
 	 		Good name:
 	 		<input type="text" name="name"><br><br/>
 	 		Desired temperature (&degc) min:
@@ -396,7 +398,6 @@
 	var removeGoodOrder = false;
 	var orderDone = false;
 
-	var moveCoordinate;
 	var toCoordinate;
 	var fromCoordinate;
 
@@ -497,8 +498,8 @@
     		if ($(e.target).is('.section')) {
     			alert("The robot can only be moved to path tiles.")
     		} else{
-    			moveCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Move robot to coordinate: '+moveCoordinate+'.');
+    			toCoordinate = "("+clickedX+","+clickedY+")"
+    			$('#order').html('Move robot to coordinate: '+toCoordinate+'.');
 				$('#submitButton').show();
     		};			
     	}  	if (removeGoodOrder) {
@@ -540,16 +541,16 @@
     	$('#order').html('Order submitted!');
     	$('#tooltip').html('');
     	if (moveOrder) {
-    		$.get( "http://localhost:3000/robot/"+"move "+moveCoordinate, function( data ) {
-        	alert(data);
+    		$.get( "http://localhost:3000/robot/move"+toCoordinate, function( data ) {
+        	//alert(data);
         },"text");
     	} if (placeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/"+"placeGood "+fromCoordinate+" "+toCoordinate, function( data ) {
-        	alert(data);
+    		$.get( "http://localhost:3000/robot/placeGood"+fromCoordinate+toCoordinate, function( data ) {
+        	//alert(data);
         },"text");
-    	} if (placeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/"+"removeGood "+fromCoordinate, function( data ) {
-        	alert(data);
+    	} if (removeGoodOrder) {
+    		$.get( "http://localhost:3000/robot/removeGood"+fromCoordinate, function( data ) {
+        	//alert(data);
         },"text");
     	};
     	moveOrder = false;
@@ -586,7 +587,22 @@
 	    goodForm.style.visibility = 'visible';
 
 	    return false;
-	}
+	};
+
+	function subtmitForm() {
+		var goodName = $( "input[name='name']" ).val();
+		var temp_min = $( "input[name='temp_min']" ).val();
+		var temp_max = $( "input[name='temp_max']" ).val();
+		var light_min = $( "input[name='light_min']" ).val();
+		var light_max = $( "input[name='light_max']" ).val();
+		//s = "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max;
+		//alert(s);
+	
+    	$.get( "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
+        	alert(data);
+
+        },"text");
+	};
 
 	</script>
 </BODY>
