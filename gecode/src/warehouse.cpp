@@ -83,12 +83,14 @@ bool __robotLastBackwardAfter = false;
 
 bool __foundSolution = false;
 
+int maxTasks = 16;
+
 
 class Warehouse : public IntMinimizeScript {
 protected:
 
   /// Number of maximal robot tasks.
-  static const int maxTasks = 16;
+  //static const int maxTasks = __maxTasks;
   /// Array of robotTasks and the corresponding BoolArray.
   IntVarArray robotTasks;
   BoolVarArray robotTasksBoolArray;
@@ -333,12 +335,17 @@ public:
           // is no other turnings in the other tasks.
           ite(*this, robotTasksBool(i,1), IntVar(*this, IntSet(domainBool, 2)), IntVar(*this,0,0), robotOrientDiff[i]);
 
+          /*
+          // TODO: maybe we should allow two turns in a row for a 180 degree move
+          // It would not do three turns, since one turn is then better if
+          // we are looking to the cost function
+          //
           // There will be no two turns in a row. We do not need a 180 or
           // 270 degree turn.
           if (i < maxTasks-1) {
               rel(*this, robotTasksBool(i,1) + robotTasksBool(i+1,1) < 2);
           }
-
+          */
 
 
 
@@ -391,10 +398,13 @@ public:
           ite(*this, robotTasksBool(i,1), IntVar(*this, IntSet(streetFields,33)), IntVar(*this, 0, 48), robotPositionsStart[i]);
           ite(*this, robotTasksBool(i,1), IntVar(*this, IntSet(streetFields,33)), IntVar(*this, 0, 48), robotPositionsEnd[i]);
 
+
+
           // No two Movings in a row.
           if (i < maxTasks-1) {
               rel(*this, robotTasksBool(i,2) + robotTasksBool(i+1,2) < 2);
           }
+
 
           // Movement of the goods:
           //
@@ -797,22 +807,6 @@ public:
 
 
 
-          /// END CONSTRAINTS
-
-          // The robot should have no good at the end.
-          rel(*this, robotGoodsEnd[maxTasks-1] == -1);
-
-          if (__robotBoolMoving) {
-              rel(*this, robotPositionsEnd[maxTasks-1] == __robotBoolMovingPos);
-          } else if (__robotBoolPlaceGood) {
-              rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolPlaceGoodNumber) == __robotBoolPlaceGoodToPos);
-          } else if (__robotBoolAddGood) {
-              rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 8);
-              rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 15);
-          } else if (__robotBoolDropGood) {
-              rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolDropGoodNumber) == 15);
-          }
-
           // TODO: otherwise, add and drop spaces should be empty
 
           /*
@@ -841,6 +835,39 @@ public:
           //}
 
       }
+
+
+      // OVERALL CONSTRAINTS
+
+      // Only one picking up process in the complete program, since it is
+      // restricted to 16 or 18
+      linear(*this, robotTasksBool.row(3), IRT_LQ, 1);
+
+      // Only one dropping process in the complete program, since it is
+      // restricted to 16 or 18
+      linear(*this, robotTasksBool.row(4), IRT_LQ, 1);
+
+
+
+
+
+
+        /// END CONSTRAINTS
+
+        // The robot should have no good at the end.
+        rel(*this, robotGoodsEnd[maxTasks-1] == -1);
+
+        if (__robotBoolMoving) {
+            rel(*this, robotPositionsEnd[maxTasks-1] == __robotBoolMovingPos);
+        } else if (__robotBoolPlaceGood) {
+            rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolPlaceGoodNumber) == __robotBoolPlaceGoodToPos);
+        } else if (__robotBoolAddGood) {
+            rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 8);
+            rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 15);
+        } else if (__robotBoolDropGood) {
+            rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolDropGoodNumber) == 15);
+        }
+
 
 
 
@@ -1309,13 +1336,15 @@ main(int argc, char* argv[]) {
 
             string job_kind = job_root.get("job", "null").asString();
 
-            if (job_kind == "moving") {
+            if (job_kind == "move") {
                 __robotBoolMoving = true;
                 int robot_destination_x = job_root["to"]["x_coord"].asInt();
                 int robot_destination_y = job_root["to"]["y_coord"].asInt();
                 __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
 
                 //cout << __robotBoolMovingPos << "\n";
+
+                maxTasks = 7;
 
             }
             else if (job_kind == "placeGood") {
@@ -1339,7 +1368,7 @@ main(int argc, char* argv[]) {
                 // Pos (1,1) = 8
 
             }
-            else if (job_kind == "drop") {
+            else if (job_kind == "remove") {
 
                 __robotBoolDropGood = true;
 
@@ -1574,7 +1603,7 @@ main(int argc, char* argv[]) {
             if (!(checkFindGood)) {
                 __robotBoolPlaceGood = false;
             }
-        } else if (job_kind == "drop") {
+        } else if (job_kind == "remove") {
 
             bool checkFindGood = false;
 
@@ -1790,6 +1819,7 @@ main(int argc, char* argv[]) {
 
     } else {
 
+        //cout << "INSTRUCTIONS:NOSOLUTION" << endl;
         cout << "INSTRUCTIONS:" << endl;
 
     }
