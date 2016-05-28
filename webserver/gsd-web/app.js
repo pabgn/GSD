@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var gecodeRunning = false;
 
 app.use('/static', express.static('public'));
 
@@ -78,6 +79,29 @@ app.get('/add/:name/:temp_min/:temp_max/:light_min/:light_max', function (req, r
 		});
 	});
 });
+
+
+	var fs = require('fs');
+	var obj;
+	var orderToSend;
+	fs.readFile('./orders.js', 'utf8', function (err, data) {
+		if (err) throw err;
+		obj = JSON.parse(data);
+
+		if (obj[0] == undefined) {
+
+		}else {
+			orderToSend = obj.shift();			
+		};
+
+		//send the order to gecode here
+
+		fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
+			if (err) return console.log(err);
+			console.log('writing to ' + './orders.js');
+		});
+	});
+};
 
 app.listen(3000, function () {
 	console.log('Warehouse webserver listening on port 3000!');
