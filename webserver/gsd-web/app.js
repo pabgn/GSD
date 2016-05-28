@@ -81,6 +81,7 @@ app.get('/add/:name/:temp_min/:temp_max/:light_min/:light_max', function (req, r
 });
 
 
+function sendOrderToGecode(){
 	var fs = require('fs');
 	var obj;
 	var orderToSend;
