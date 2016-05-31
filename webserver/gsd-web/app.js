@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var gecodeRunning = false;
+var firstOrder = false;
 
 app.use('/static', express.static('public'));
 
@@ -28,6 +29,7 @@ app.get('/robot/:order/', function(req, res) {
 	var to_yCoord;
 	var from_xCoord;
 	var from_yCoord;
+	firstOrder = true;
 
 	fs.readFile('./orders.js', 'utf8', function (err, data) {
 		if (err) throw err;
@@ -63,6 +65,7 @@ app.get('/add/:name/:temp_min/:temp_max/:light_min/:light_max', function (req, r
 	var fs = require('fs');
 	var obj;
 	good = req.params;
+	firstOrder = true;
 
 	fs.readFile('./orders.js', 'utf8', function (err, data) {
 		if (err) throw err;
@@ -70,12 +73,12 @@ app.get('/add/:name/:temp_min/:temp_max/:light_min/:light_max', function (req, r
 
 		res.send('Server recieved order: add('+good.name+'\n,Temp min: '+good.temp_min+', max: '+good.temp_max+'\nLight min: '+good.light_min+', max: '+good.light_max+')');
 		obj.push({"job":"add",
-					"good":{
-						"name": good.name,
-						"desiredTemperature":{"min": good.temp_min,"max": good.temp_max},
-        				"desiredLighting":{"min":good.light_min, "max":good.light_max}        
-        			}
-        		});						
+			"good":{
+				"name": good.name,
+				"desiredTemperature":{"min": good.temp_min,"max": good.temp_max},
+				"desiredLighting":{"min":good.light_min, "max":good.light_max}        
+			}
+		});						
 		
 		fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
 			if (err) return console.log(err);
@@ -86,6 +89,11 @@ app.get('/add/:name/:temp_min/:temp_max/:light_min/:light_max', function (req, r
 
 
 function sendOrderToGecode(){
+	var stdin = process.openStdin();
+	var exec = require('child_process').exec; 
+	var cmd;
+	
+	
 	var fs = require('fs');
 	var obj;
 	var orderToSend;
@@ -93,20 +101,41 @@ function sendOrderToGecode(){
 		if (err) throw err;
 		obj = JSON.parse(data);
 
-		if (obj[0] == undefined) {
-
-		}else {
-			orderToSend = obj.shift();			
+		if (obj[0] == undefined ) {
+			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
+				if (err) return console.log(err);
+				console.log('No orders ready in /orders.js');
+			});
+		}else if (gecodeRunning){
+			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
+				if (err) return console.log(err);
+				console.log('Gecode module is busy.');
+			});
+		} else{
+			gecodeRunning = true;
+			orderToSend = obj.shift();	
+			cmd  = 'echo \'' + JSON.stringify(orderToSend) +'\' | ./warehouse'; 
+			exec(cmd, function(error, stdout, stderr) {
+				//callback
+				
+				gecodeRunning = false;
+			});
+			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
+				if (err) return console.log(err);
+				console.log('Popped order from: /orders.js');
+			});
 		};
 
-		//send the order to gecode here
 
-		fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
-			if (err) return console.log(err);
-			console.log('writing to ' + './orders.js');
-		});
+		
 	});
 };
+
+setInterval(function () {
+		sendOrderToGecode();
+	}, 10000);
+
+
 
 app.listen(3000, function () {
 	console.log('Warehouse webserver listening on port 3000!');
