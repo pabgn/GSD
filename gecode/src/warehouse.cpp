@@ -1338,8 +1338,8 @@ main(int argc, char* argv[]) {
 
             if (job_kind == "move") {
                 __robotBoolMoving = true;
-                int robot_destination_x = job_root["to"]["x_coord"].asInt();
-                int robot_destination_y = job_root["to"]["y_coord"].asInt();
+                int robot_destination_x = atoi(job_root["to"]["x_coord"].asString().c_str());
+                int robot_destination_y = atoi(job_root["to"]["y_coord"].asString().c_str());
                 __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
 
                 //cout << __robotBoolMovingPos << "\n";
@@ -1350,14 +1350,14 @@ main(int argc, char* argv[]) {
             else if (job_kind == "placeGood") {
                 __robotBoolPlaceGood = true;
 
-                int robot_from_x = job_root["from"]["x_coord"].asInt();
-                int robot_from_y = job_root["from"]["y_coord"].asInt();
+                int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
+                int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
                 __robotBoolPlaceGoodFromPos = robot_from_y * 7 + robot_from_x;
 
 
 
-                int robot_to_x = job_root["to"]["x_coord"].asInt();
-                int robot_to_y = job_root["to"]["y_coord"].asInt();
+                int robot_to_x = atoi(job_root["to"]["x_coord"].asString().c_str());
+                int robot_to_y = atoi(job_root["to"]["y_coord"].asString().c_str());
                 __robotBoolPlaceGoodToPos = robot_to_y * 7 + robot_to_x;
 
             }
@@ -1372,8 +1372,8 @@ main(int argc, char* argv[]) {
 
                 __robotBoolDropGood = true;
 
-                int robot_from_x = job_root["from"]["x_coord"].asInt();
-                int robot_from_y = job_root["from"]["y_coord"].asInt();
+                int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
+                int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
                 __robotBoolDropGoodFromPos = robot_from_y * 7 + robot_from_x;
 
                 // To Pos (1,2) = 15
@@ -1549,10 +1549,10 @@ main(int argc, char* argv[]) {
         if (__robotBoolAddGood) {
             goodsStartingPosition[__numGoods-1] = 8; // Starting Position for Adding Goods
             goodsName.push_back(job_root["good"]["name"].asString());
-            goodsTempMin[__numGoods-1] = job_root["good"]["desiredTemperature"]["min"].asInt();
-            goodsTempMax[__numGoods-1] = job_root["good"]["desiredTemperature"]["max"].asInt();
-            goodsLightMin[__numGoods-1] = job_root["good"]["desiredLighting"]["min"].asInt();
-            goodsLightMax[__numGoods-1] = job_root["good"]["desiredLighting"]["max"].asInt();
+            goodsTempMin[__numGoods-1] = atoi(job_root["good"]["desiredTemperature"]["min"].asString().c_str());
+            goodsTempMax[__numGoods-1] = atoi(job_root["good"]["desiredTemperature"]["max"].asString().c_str());
+            goodsLightMin[__numGoods-1] = atoi(job_root["good"]["desiredLighting"]["min"].asString().c_str());
+            goodsLightMax[__numGoods-1] = atoi(job_root["good"]["desiredLighting"]["max"].asString().c_str());
         }
 
         if (__boolDummyGood) {
