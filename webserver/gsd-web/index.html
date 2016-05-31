@@ -435,7 +435,7 @@
 				var clickedX = this.innerHTML.substring(0,1);
 				var clickedY = this.innerHTML.substring(2,3);
 				var sections;
-				$.get( "http://localhost:3000/db", function( data ) {
+				$.get( "http://192.168.0.103:3000/db", function( data ) {
 					sections = JSON.parse(data);
 					for (var i = 0; i < sections.length; i++){
 						if (sections[i].x_coord == clickedX && sections[i].y_coord == clickedY ){
@@ -461,7 +461,7 @@
 						$('#sectionInfo').hide();
 					}
 				},"text");
-				$.get( "http://localhost:3000/sensors", function( data ) {
+				$.get( "http://192.168.0.103:3000/sensors", function( data ) {
 					sensors = JSON.parse(data);
 					var sensorID;
 					if(mySection.x_coord < 3 && mySection.y_coord > 3){
@@ -569,15 +569,15 @@
 				$('#order').html('Order submitted!');
 				$('#tooltip').html('');
 				if (moveOrder) {
-					$.get( "http://localhost:3000/robot/move"+toCoordinate, function( data ) {
+					$.get( "http://192.168.0.103:3000/robot/move"+toCoordinate, function( data ) {
         	//alert(data);
         },"text");
 				} if (placeGoodOrder) {
-					$.get( "http://localhost:3000/robot/placeGood"+fromCoordinate+toCoordinate, function( data ) {
+					$.get( "http://192.168.0.103:3000/robot/placeGood"+fromCoordinate+toCoordinate, function( data ) {
         	//alert(data);
         },"text");
 				} if (removeGoodOrder) {
-					$.get( "http://localhost:3000/robot/removeGood"+fromCoordinate, function( data ) {
+					$.get( "http://192.168.0.103:3000/robot/removeGood"+fromCoordinate, function( data ) {
         	//alert(data);
         },"text");
 				};
@@ -626,7 +626,7 @@
 		//s = "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max;
 		//alert(s);
 
-		$.get( "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
+		$.get( "http://192.168.0.103:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
 			alert(data);
 
 		},"text");
