@@ -104,7 +104,15 @@ function sendOrderToGecode(){
 		if (obj[0] == undefined ) {
 			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
 				if (err) return console.log(err);
+				gecodeRunning = true;
 				console.log('No orders ready in /orders.js');
+				cmd  = 'echo 'null' | ./warehouse'; 
+				exec(cmd, function(error, stdout, stderr) {
+					
+					
+					gecodeRunning = false;
+					//do something with reply.
+				});
 			});
 		}else if (gecodeRunning){
 			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
@@ -117,7 +125,7 @@ function sendOrderToGecode(){
 			cmd  = 'echo \'' + JSON.stringify(orderToSend) +'\' | ./warehouse'; 
 			exec(cmd, function(error, stdout, stderr) {
 				//callback
-				
+
 				gecodeRunning = false;
 			});
 			fs.writeFile('./orders.js', JSON.stringify(obj, null,1), function (err) {
@@ -132,8 +140,8 @@ function sendOrderToGecode(){
 };
 
 setInterval(function () {
-		sendOrderToGecode();
-	}, 10000);
+	sendOrderToGecode();
+}, 10000);
 
 
 
