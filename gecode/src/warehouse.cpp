@@ -20,9 +20,7 @@ using namespace std;
 using namespace Gecode;
 using namespace Gecode::Driver;
 
-/// Global variables for reading information from the database
-
-/// TODO: number of robots
+/// Global variables for reading information from the JSON files
 
 /// Number of goods.
 int __numGoods;
@@ -53,36 +51,46 @@ IntArgs __warehousePosition;
 int __numGarage;
 /// Position of the garage places
 IntArgs __garagePosition;
-
+/// Final output instructions for the robot
 string __final_output = "";
 
-
+/// Final positions of the goods
 IntArgs __goodsEndPositions;
+
+/// Final robot positions and orientation
 int __robotFinalPosition;
 int __robotFinalOrientation;
 
-
+/// Bool for robot Moving Task and moving position
 bool __robotBoolMoving = false;
 int __robotBoolMovingPos;
 
+/// Bool for robot Placing good task including from position, to position and
+/// good number-
 bool __robotBoolPlaceGood = false;
 int __robotBoolPlaceGoodFromPos;
 int __robotBoolPlaceGoodNumber;
 int __robotBoolPlaceGoodToPos;
 
+/// Bool for adding a good
 bool __robotBoolAddGood = false;
 
+/// Bool for dropping a good
 bool __robotBoolDropGood = false;
 int __robotBoolDropGoodFromPos;
 int __robotBoolDropGoodNumber;
 
+/// Bool for a dummy good, when no good is in the Warehouse (border case)
 bool __boolDummyGood = false;
 
+/// Bool for last Movement of the robot (if Backward Movement)
 bool __robotLastBackwardBefore = false;
 bool __robotLastBackwardAfter = false;
 
+/// Bool for found Solution
 bool __foundSolution = false;
 
+/// Maximal number of tasks (can be adjusted, e.g. if it is a moving task)
 int maxTasks = 16;
 
 
@@ -99,9 +107,6 @@ protected:
   IntVarArray robotTasksCost;
   /// Linear all RobotTaskCost to robotCost.
   IntVar robotCost;
-
-  /// TODO: warehouse costs: maybe 10
-  /// TODO: garage costs: maybe 5
 
   /// Array of robotPositions at start and end (0 to 48) and corresponding
   /// BoolArray at start.
@@ -154,8 +159,6 @@ protected:
   // Totsl Penalty Cost
   IntVar penaltyCost;
 
-
-
   /// Total cost (want to minimize, doing that with branching).
   IntVar c;
 
@@ -185,14 +188,6 @@ public:
   penaltyCost(*this,0,1600),
   c(*this,0,1700)
     {
-
-
-      // TODO: FORWARD, 1,* row, column;
-      // TODO: TURN, 1, RIGHT, 0
-      // TODO: TURN, 2, RIGHT, 1
-      // TODO: TURN, 1, LEFT, 0
-      // TODO: TURN, 2, LEFT, 1
-
 
       /// SETTING UP MATRIZES
 
@@ -253,17 +248,12 @@ public:
 
       /// START CONSTRAINTS
 
-      // TODO: Robot Orientation and Position
-      //       Will be read later from the database
-
       // Start position and orientation of the robot
       rel(*this, robotPositionsStart[0] == __robotStartPosition);
       rel(*this, robotOrientationStart[0] == __robotStartOrientation);
       // The current good at the robot; -1 means that no good is at the robot;
       // Otherwise 0 to __numGoods-1
       rel(*this, robotGoodsStart[0] == -1);
-
-
 
       // The starting position from the goods
       for (int j = 0; j < __numGoods; j++) {
@@ -336,9 +326,8 @@ public:
           ite(*this, robotTasksBool(i,1), IntVar(*this, IntSet(domainBool, 2)), IntVar(*this,0,0), robotOrientDiff[i]);
 
           /*
-          // TODO: maybe we should allow two turns in a row for a 180 degree move
-          // It would not do three turns, since one turn is then better if
-          // we are looking to the cost function
+          // Uncomment this, if it should be not allowed to make two turns in
+          // a row, like a 180 degree movement.
           //
           // There will be no two turns in a row. We do not need a 180 or
           // 270 degree turn.
@@ -507,15 +496,9 @@ public:
               rel(*this, robotTasksBool(i,3) + robotTasksBool(i,4) + robotTasksBool(i+1,3) + robotTasksBool(i+1,4) < 2 );
           }
 
-          // TODO: after a picking or a dropping return 2 instead of 1,
-          // can be handled at the print out.
-
-
 
 
           /// NOT ALLOWED MOVEMENTS
-
-          /// TODO: format them in a more symmetric way.
 
           // If the orientation from the robot is to North = 0.
           ite(*this, expr(*this,robotPositionsStartBool(i,0) && robotOrientationStartBool(i,0)), IntVar(*this, 0,6), IntVar(*this,-1,6), robotMovingForward[i]);
@@ -805,34 +788,13 @@ public:
 
 
 
-
-
-          // TODO: otherwise, add and drop spaces should be empty
-
-          /*
-
-          // TODO: EDIT Garage Warehouse Places must be empty at the end -> No Goods Inside
-          if (i == maxTasks-1) {
-            for (int j = 0; j < __numGoods; j++) {
-                rel(*this, goodsPositionEnd(i,j) == IntVar(*this, IntSet(finishWarehouseFields,12)));
-            }
-          }
-
-          */
-
-
-
-
           // SYMMETRIES
 
           // Null Jobs at the end.
-          // TODO: By adding more robots, this must be modified
+          // NOte that this must be updated, if more robots will be added
           if (i < maxTasks-1) {
            ite(*this, robotTasksBool(i,0), IntVar(*this, 0, 0), IntVar(*this, 0, 4), robotTasks[i+1]);
           }
-          //if (i > 0) {
-            //  ite(*this, robotTasksBool(i,0), IntVar(*this, 0, 0), IntVar(*this, 0, 4), robotTasks[i-1]);
-          //}
 
       }
 
@@ -840,11 +802,11 @@ public:
       // OVERALL CONSTRAINTS
 
       // Only one picking up process in the complete program, since it is
-      // restricted to 16 or 18
+      // restricted to 16.
       linear(*this, robotTasksBool.row(3), IRT_LQ, 1);
 
       // Only one dropping process in the complete program, since it is
-      // restricted to 16 or 18
+      // restricted to 16.
       linear(*this, robotTasksBool.row(4), IRT_LQ, 1);
 
 
@@ -857,14 +819,32 @@ public:
         // The robot should have no good at the end.
         rel(*this, robotGoodsEnd[maxTasks-1] == -1);
 
+
+        // Finally, we have to specify constraints about the job that is
+        // read from stdin.
         if (__robotBoolMoving) {
+            // If the job task is a moving task, then we have to specify the
+            // end position of the robot.
             rel(*this, robotPositionsEnd[maxTasks-1] == __robotBoolMovingPos);
         } else if (__robotBoolPlaceGood) {
+            // If the job is a task that we have to replace a good,
+            // then we can specify the end position of this good after the final task:
             rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolPlaceGoodNumber) == __robotBoolPlaceGoodToPos);
         } else if (__robotBoolAddGood) {
+            // If the job was an adding task for a good, then will specify
+            // that this good shouldn’t be placed at positions 8 and 15
+            // after the final tasks, since position 8 represents the
+            // adding zone and we want to move the current good from the
+            // adding zone and position 15 represents the dropping zone,
+            // since we also want that the new good shouldn’t be at the end
+            // in the dropping zone, since we added this good to the Warehouse:
             rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 8);
             rel(*this, goodsPositionEnd(maxTasks-1,__numGoods-1) != 15);
         } else if (__robotBoolDropGood) {
+            // If the job is a dropping task for a good, then we will specify
+            // that this good has to be placed at position 15 after the final
+            // task, since position 15 represents the dropping zone in the
+            // Warehouse.
             rel(*this, goodsPositionEnd(maxTasks-1,__robotBoolDropGoodNumber) == 15);
         }
 
@@ -874,8 +854,6 @@ public:
 
       /// COST
 
-      // TODO: Modify the cost function for priority and other task constraints
-
       /// Mapping Cost of a job to each task of the robot
       for (int i = 0; i < maxTasks; i++) {
           element(*this, jobCost, robotTasks[i], robotTasksCost[i]);
@@ -884,7 +862,9 @@ public:
       linear(*this, robotTasksCost, IRT_EQ, robotCost);
 
 
-
+      /// Adding Penalty Cost to the cost function.
+      /// For every good that doesn't fit the temperature and the light
+      /// constraint, we add a penalty of 100 to the cost function.
       for (int i = 0; i < __numGoods; i++) {
           for (int j = 0; j < __numWarehouses; j++) {
               int posWarehouse = __warehousePosition[j];
@@ -899,7 +879,9 @@ public:
 
           }
 
-
+          /// We add also a penalty of 100 to the cost function, when the
+          /// good is placed in one of the four garage places, because there
+          /// are no temperature and light sensors.
           for (int j = 0; j < __numGarage; j++) {
               int posGarage = __garagePosition[j];
               ite(*this, expr(*this, goodsPositionEnd(maxTasks-1,i) == IntVar(*this, posGarage, posGarage)),
@@ -918,12 +900,7 @@ public:
 
       /// BRANCHING
 
-      // First branch on the cost, so that we get every-time the minimum cost.
-      //branch(*this, c, INT_VAL_MIN());
-
-      // Branch then on the different tasks.
-      //branch(*this, robotTasks, INT_VAR_SIZE_MIN(), INT_VAL_MIN());
-
+      // First branch on the the different tasks.
       branch(*this, robotTasks, INT_VAR_AFC_SIZE_MIN(), INT_VAL_MIN());
 
       // Branch then on the number of moving steps for the case of a
@@ -977,8 +954,7 @@ public:
   virtual void
   print(std::ostream& os) const {
     // Additional printing
-
-
+    // Comment this out for further information (not compatible with the robot)
     //os << "\t" << robotTasks << std::endl;
 
     __foundSolution = true;
@@ -1023,8 +999,6 @@ public:
           printPrevious = printCurrent && true;
           printCurrent = true;
           afterBackward = false;
-
-          // TODO: After a backward task, there should be a 2 instead of a 1.
 
         }
         else if (robotTasks[i].val() == 2) {
@@ -1094,22 +1068,24 @@ public:
       __final_output += temp;
     }
 
+    // Save for further runnings, if the last step was a backward step,
+    // because then the robot must turn the wheel backwards.
     __robotLastBackwardAfter = afterBackward;
 
+    // Save also the final position and orientation of the robot.
     __robotFinalPosition = robotPositionsEnd[maxTasks-1].val();
     __robotFinalOrientation = robotOrientationEnd[maxTasks-1].val();
 
+    // Saving the end positions of the goods for writing to the JSON file later.
     IntArgs goodsEndPositions(__numGoods);
-
     Matrix<IntVarArray> goodsPositionEnd(goodsPositionEndArray,maxTasks,__numGoods);
-
     for (int j = 0; j < __numGoods; j++) {
         goodsEndPositions[j] = goodsPositionEnd(maxTasks-1,j).val();
     }
-
     __goodsEndPositions = goodsEndPositions;
 
     // Additional printing:
+    // Comment this out for further information (not compatible with the robot)
     //os << "\t" << robotPositionsStart << std::endl;
     //os << "\t" << robotPositionsEnd << std::endl;
     //os << "\t" << robotMovingForward << std::endl;
@@ -1130,6 +1106,9 @@ public:
 /* -------------------------------
  *  MODIFYING THE SCRIPT FOR RUNNING
  *  AND ADDITIONAL PRINTING
+ *  THIS FOLLOWING SCRIPT IS BASED FROM THE COURSE
+ *  CONSTRAINT PROGRAMMING AT THE
+ *  UPPSALA UNIVERSITY.
  *  -------------------------------
  */
 template<class BaseSpace>
@@ -1326,90 +1305,80 @@ void split(const string& s, char c,
 int
 main(int argc, char* argv[]) {
 
-    /// TODO: reading/parsing json files
-    /// Test Initializing
+        // READING JOB TASKS FROM STDIN
 
-        // Readin stdin
+        Json::Value job_root;
+        std::cin >> job_root;
 
-            Json::Value job_root;
-            std::cin >> job_root;
+        string job_kind = job_root.get("job", "null").asString();
 
-            string job_kind = job_root.get("job", "null").asString();
+        if (job_kind == "move") {
 
-            if (job_kind == "move") {
-                __robotBoolMoving = true;
-                int robot_destination_x = atoi(job_root["to"]["x_coord"].asString().c_str());
-                int robot_destination_y = atoi(job_root["to"]["y_coord"].asString().c_str());
-                __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
+            // If its a moving task, redd the destination coordinates
+            // and transform the to the positions.
+            __robotBoolMoving = true;
+            int robot_destination_x = atoi(job_root["to"]["x_coord"].asString().c_str());
+            int robot_destination_y = atoi(job_root["to"]["y_coord"].asString().c_str());
+            __robotBoolMovingPos = robot_destination_y * 7 + robot_destination_x;
 
-                //cout << __robotBoolMovingPos << "\n";
+            // Restrict in a moving task the number of tasks to 7, since
+            // it will not more be used in the Warehouse.
+            maxTasks = 7;
 
-                maxTasks = 7;
+        }
+        else if (job_kind == "placeGood") {
 
-            }
-            else if (job_kind == "placeGood") {
-                __robotBoolPlaceGood = true;
+            // If its a placeGood task, read the starting and destination
+            // coordinates and transform them.
+            __robotBoolPlaceGood = true;
+            int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
+            int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
+            __robotBoolPlaceGoodFromPos = robot_from_y * 7 + robot_from_x;
+            int robot_to_x = atoi(job_root["to"]["x_coord"].asString().c_str());
+            int robot_to_y = atoi(job_root["to"]["y_coord"].asString().c_str());
+            __robotBoolPlaceGoodToPos = robot_to_y * 7 + robot_to_x;
 
-                int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
-                int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
-                __robotBoolPlaceGoodFromPos = robot_from_y * 7 + robot_from_x;
+        }
+        else if (job_kind == "add") {
 
+            // If its a add task, we will read the infromation later,
+            // since we have first to know the previous number of goods
+            // that will be read later from the JSON files.
+            __robotBoolAddGood = true;
 
+        }
+        else if (job_kind == "remove") {
 
-                int robot_to_x = atoi(job_root["to"]["x_coord"].asString().c_str());
-                int robot_to_y = atoi(job_root["to"]["y_coord"].asString().c_str());
-                __robotBoolPlaceGoodToPos = robot_to_y * 7 + robot_to_x;
+            // If its a removing/dropping task, then read the starting
+            // corrdination of this good and transform it into the
+            // position.
 
-            }
-            else if (job_kind == "add") {
+            __robotBoolDropGood = true;
+            int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
+            int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
+            __robotBoolDropGoodFromPos = robot_from_y * 7 + robot_from_x;
 
-                __robotBoolAddGood = true;
-
-                // Pos (1,1) = 8
-
-            }
-            else if (job_kind == "remove") {
-
-                __robotBoolDropGood = true;
-
-                int robot_from_x = atoi(job_root["from"]["x_coord"].asString().c_str());
-                int robot_from_y = atoi(job_root["from"]["y_coord"].asString().c_str());
-                __robotBoolDropGoodFromPos = robot_from_y * 7 + robot_from_x;
-
-                // To Pos (1,2) = 15
-
-
-
-            }
-            else {
-                __robotBoolMoving = false;
-                __robotBoolPlaceGood = false;
-                __robotBoolAddGood = false;
-                __robotBoolDropGood = false;
-            }
-
-
+        }
+        else {
+            // Otherwise we have no user job task
+            __robotBoolMoving = false;
+            __robotBoolPlaceGood = false;
+            __robotBoolAddGood = false;
+            __robotBoolDropGood = false;
+        }
 
 
+        /// PARSE JSON FILES
 
-
-        /// Parse Json Files
-        Json::Value json_robot_root;   // starts as "null"; will contain the root value after parsing
+        /// Getting all information from the robot: position, orientation
+        /// and if it was a backward step as the last task
+        Json::Value json_robot_root;
         std::fstream config_robot("robot.js");
-
         config_robot >> json_robot_root;
-
         config_robot.close();
 
-        // Get the value of the member of root named 'my-encoding', return 'UTF-32' if there is no
-        // such member.
-        //std::string my_encoding = root.get("my-encoding", "UTF-32" ).asString();
-
-        // Get the value of the member of root named 'my-plug-ins'; return a 'null' value if
-        // there is no such member.
         int robot_start_x = json_robot_root["x_coord"].asInt();
         int robot_start_y = json_robot_root["y_coord"].asInt();
-
         int robot_start_position = robot_start_y * 7 + robot_start_x;
 
         int robot_start_orientation = json_robot_root["orientation"].asInt();
@@ -1420,17 +1389,9 @@ main(int argc, char* argv[]) {
         __robotStartOrientation = robot_start_orientation;
         __robotLastBackwardBefore = robot_last_backward;
 
-        /*
 
-        cout << "robot start row: " << robot_start_x << "\n";
-        cout << "robot start column: " << robot_start_y << "\n";
-        cout << "robot start position: " << robot_start_position << "\n";
-        cout << "robot start orientation: " << robot_start_orientation << "\n";
-
-        */
-
-        // Sensors
-
+        // Getting all information about the sensors, including
+        // temperature and lighting.
         Json::Value json_sensors_root;
         std::ifstream config_sensors("sensors.js");
         config_sensors >> json_sensors_root;
@@ -1444,20 +1405,20 @@ main(int argc, char* argv[]) {
 
         }
 
-        //cout << sensorsTemperature << "\n";
-        //cout << sensorsLight << "\n";
 
-        // Sections and Areas
+        // Getting all information about the sections and the goods that
+        // may stored inside the sections.
 
         Json::Value json_sections_root;
         std::ifstream config_sections("sections.js");
         config_sections >> json_sections_root;
 
         int numGoods = 0;
-
         int numWarehouses = 0;
         int numGarage = 0;
 
+        // In the first step we are getting the number of sections,
+        // garage places and goods.
         for ( int i = 0; i < json_sections_root.size(); ++i ){
             int sensor_int = json_sections_root[i]["sensor"].asInt();
             if (sensor_int > 0) {
@@ -1471,20 +1432,16 @@ main(int argc, char* argv[]) {
             }
         }
 
-        /*
-
-        cout << numGoods << "\n";
-        cout << numWarehouses << "\n";
-        cout << numGarage << "\n";
-
-        */
-
+        // If it is a adding task, we will add one good to the count.
         if (__robotBoolAddGood) {
             __numGoods = numGoods + 1;
         } else {
             __numGoods = numGoods;
         }
 
+        // If we have no good, then we will add a dummy good at the
+        // dropping zone, so that the robot will do nothing. This workaround
+        // is needed, that all constraints for the goods are working.
         if (__numGoods == 0) {
             // Create Dummy Good
             __boolDummyGood = true;
@@ -1497,6 +1454,9 @@ main(int argc, char* argv[]) {
         __numWarehouses = numWarehouses;
         __numGarage = numGarage;
 
+        // Now we can read all information about the goods, sections and
+        // garage places from the JSON files and store it in the global
+        // variables.
 
         IntArgs goodsStartingPosition(__numGoods);
 
@@ -1546,6 +1506,7 @@ main(int argc, char* argv[]) {
             }
         }
 
+        // If it is as adding good task, we will add this good from stdin.
         if (__robotBoolAddGood) {
             goodsStartingPosition[__numGoods-1] = 8; // Starting Position for Adding Goods
             goodsName.push_back(job_root["good"]["name"].asString());
@@ -1555,8 +1516,9 @@ main(int argc, char* argv[]) {
             goodsLightMax[__numGoods-1] = atoi(job_root["good"]["desiredLighting"]["max"].asString().c_str());
         }
 
+        // If we have a dummy good, then we will give this dummy good
+        // dummy values.
         if (__boolDummyGood) {
-
             goodsStartingPosition[__numGoods-1] = 15; // Starting Position for Dropping Goods
             goodsName.push_back("DummyGood");
             goodsTempMin[__numGoods-1] = -100;
@@ -1566,6 +1528,7 @@ main(int argc, char* argv[]) {
 
         }
 
+        // Finally, we can store those values in the global variables.
         __goodsStartingPosition = goodsStartingPosition;
         __goodsTempMin = goodsTempMin;
         __goodsTempMax = goodsTempMax;
@@ -1577,25 +1540,15 @@ main(int argc, char* argv[]) {
         __warehousePosition = warehousePosition;
         __garagePosition = garagePosition;
 
-        /*
-        cout << __goodsStartingPosition << "\n";
-        cout << __goodsTempMin << "\n";
-        cout << __goodsTempMax << "\n";
-        cout << __goodsLightMin << "\n";
-        cout << __goodsLightMax << "\n";
-        cout << __warehouseTemp << "\n";
-        cout << __warehouseLight << "\n";
-        cout << __warehousePosition << "\n";
-        cout << __garagePosition << "\n";
-        */
-
+        // If its a placeGood job, then we can calculate now, at which
+        // index this good is stored in our goods array that we read it
+        // from the JSON files.
         if (job_kind == "placeGood") {
             bool checkFindGood = false;
 
             for (int j = 0; j < __numGoods; j++) {
                 if (__goodsStartingPosition[j] == __robotBoolPlaceGoodFromPos) {
                     __robotBoolPlaceGoodNumber = j;
-                    //cout << __robotBoolPlaceGoodNumber << "\n";
                     checkFindGood = true;
                 }
             }
@@ -1605,6 +1558,7 @@ main(int argc, char* argv[]) {
             }
         } else if (job_kind == "remove") {
 
+            // The same we will do, if we are dropping a good.
             bool checkFindGood = false;
 
             for (int j = 0; j < __numGoods; j++) {
@@ -1620,114 +1574,6 @@ main(int argc, char* argv[]) {
         }
 
 
-
-        /// TODO: Initializing the IntArgs as global variables
-
-
-/*
-    /// Number of goods.
-    int numGoods = 2;
-    __numGoods = numGoods;
-
-    /// Start position of all goods
-    IntArgs goodsStartingPosition(__numGoods);
-    goodsStartingPosition[0] = 9;
-    goodsStartingPosition[1] = 8;
-    __goodsStartingPosition = goodsStartingPosition;
-
-
-    /// Minimum and Maximum Temperatur of goods.
-    IntArgs goodsTempMin(__numGoods);
-    goodsTempMin[0] = 10;
-    goodsTempMin[1] = 10;
-    __goodsTempMin = goodsTempMin;
-
-    IntArgs goodsTempMax(__numGoods);
-    goodsTempMax[0] = 10;
-    goodsTempMax[1] = 100;
-    __goodsTempMax = goodsTempMax;
-
-    /// Minimum and Maximum Light of goods.
-    IntArgs goodsLightMin(__numGoods);
-    goodsLightMin[0] = 1;
-    goodsLightMin[1] = 1;
-    __goodsLightMin = goodsLightMin;
-
-    IntArgs goodsLightMax(__numGoods);
-    goodsLightMax[0] = 100;
-    goodsLightMax[1] = 100;
-    __goodsLightMax = goodsLightMax;
-
-
-    /// Number of Warehouse places.
-    int numWarehouses = 12;
-    __numWarehouses = numWarehouses;
-
-    /// Temperatur of Warehouses.
-    IntArgs warehouseTemp(numWarehouses);
-    warehouseTemp[0] = 10;
-    warehouseTemp[1] = 20;
-    warehouseTemp[2] = 20;
-    warehouseTemp[3] = 20;
-    warehouseTemp[4] = 20;
-    warehouseTemp[5] = 20;
-    warehouseTemp[6] = 20;
-    warehouseTemp[7] = 20;
-    warehouseTemp[8] = 20;
-    warehouseTemp[9] = 20;
-    warehouseTemp[10] = 20;
-    warehouseTemp[11] = 20;
-    __warehouseTemp = warehouseTemp;
-
-    /// Light of Warehouses.
-    IntArgs warehouseLight(numWarehouses);
-    warehouseLight[0] = 10;
-    warehouseLight[1] = 12;
-    warehouseLight[2] = 18;
-    warehouseLight[3] = 20;
-    warehouseLight[4] = 10;
-    warehouseLight[5] = 10;
-    warehouseLight[6] = 10;
-    warehouseLight[7] = 20;
-    warehouseLight[8] = 14;
-    warehouseLight[9] = 10;
-    warehouseLight[10] = 20;
-    warehouseLight[11] = 20;
-    __warehouseLight = warehouseLight;
-
-    /// Position of the Warehouse
-    IntArgs warehousePosition(__numWarehouses);
-    warehousePosition[0] = 11;
-    warehousePosition[1] = 12;
-    warehousePosition[2] = 18;
-    warehousePosition[3] = 19;
-    warehousePosition[4] = 29;
-    warehousePosition[5] = 30;
-    warehousePosition[6] = 32;
-    warehousePosition[7] = 33;
-    warehousePosition[8] = 36;
-    warehousePosition[9] = 37;
-    warehousePosition[10] = 39;
-    warehousePosition[11] = 40;
-    __warehousePosition = warehousePosition;
-
-
-    /// Number of garage places.
-    int numGarage = 4;
-    __numGarage = numGarage;
-
-    /// Position of the garage places
-    IntArgs garagePosition(__numGarage);
-    garagePosition[0] = 8;
-    garagePosition[1] = 9;
-    garagePosition[2] = 15;
-    garagePosition[3] = 16;
-    __garagePosition = garagePosition;
-
-*/
-
-    //cout << "Test" << endl;
-
     /// Running the script with a dept-first-search
     Options opt("");
     opt.solutions(0);
@@ -1736,26 +1582,28 @@ main(int argc, char* argv[]) {
 
     if (__foundSolution) {
 
+            // If we found a solution, then we will print the best
+            // solution, since __final_output is only updated, when
+            // it founds a better solution (IntMinimizeScript).
             cout << __final_output << endl;
 
-            // Updating files
-
-            // Updating Robot
-
+            // We also have to update the robot coordinates, orientation
+            // and backward Bool
             json_robot_root["x_coord"] = __robotFinalPosition % 7;
             json_robot_root["y_coord"] = __robotFinalPosition / 7;
             json_robot_root["orientation"] = __robotFinalOrientation;
             json_robot_root["backward"] = __robotLastBackwardAfter;
 
+            // And update robot.js
             Json::StyledWriter styledWriter;
             std::ofstream ofs;
             ofs.open("robot.js", std::ofstream::out | std::ofstream::trunc);
             ofs << styledWriter.write(json_robot_root);
             ofs.close();
 
-            // Updating Sections
-
-
+            // Then we have to update all sections, including the
+            // status of the sections and the goods that may be
+            // stored there inside.
             for ( int i = 0; i < json_sections_root.size(); ++i ){
                 int cur_x = json_sections_root[i]["x_coord"].asInt();
                 int cur_y = json_sections_root[i]["y_coord"].asInt();
@@ -1809,6 +1657,7 @@ main(int argc, char* argv[]) {
 
             }
 
+            // And update section.js
             Json::StyledWriter styledWriterSections;
             std::ofstream ofsSections;
             ofsSections.open("sections.js", std::ofstream::out | std::ofstream::trunc);
@@ -1819,12 +1668,12 @@ main(int argc, char* argv[]) {
 
     } else {
 
-        //cout << "INSTRUCTIONS:NOSOLUTION" << endl;
+        // If we don't found a solution, then we don't have to update
+        // the JSON files, and we will only print the empty INSTRUCTIONS
+        // for the robot.
         cout << "INSTRUCTIONS:" << endl;
 
     }
-
-
 
     return 0;
 }
