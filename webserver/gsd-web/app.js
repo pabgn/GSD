@@ -133,7 +133,10 @@ function sendOrderToGecode(){
 
 					console.log(stdout);
 					gecodeRunning = false;
-					//do something with reply.
+					btSerial.write(new Buffer('  '+stdout, 'utf-8'), function(err, bytesWritten) {
+						console.log(bytesWritten)
+						if (err) console.log(err);
+					});
 				});
 			});
 		} else{
