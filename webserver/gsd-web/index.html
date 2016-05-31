@@ -406,7 +406,7 @@
 			var fromCoordinate;
 
 			window.setInterval(function(){
-				$.get( "http://localhost:3000/robot", function( data ) {
+				$.get( "http://192.168.0.103:3000/robot", function( data ) {
 					var robot = JSON.parse(data);
 
 
@@ -414,7 +414,7 @@
 
         	//$('#r2').animate({ "left": ((robots[1].x_coordinate)*50).toString() +'px',"bottom": ((robots[1].y_coordinate)*50).toString() +'px'}, "slow" );
         },"text");
-				$.get( "http://localhost:3000/db", function( data ) {
+				$.get( "http://192.168.0.103:3000/db", function( data ) {
 					sections = JSON.parse(data);
 					for (var i = 0; i < sections.length; i++){
 						if (sections[i].status == "occupied") {
