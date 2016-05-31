@@ -1,609 +1,633 @@
 <!DOCTYPE html>
 <HTML>
-   <HEAD>
-   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+	<HEAD>
+		<script src="./jquery-2.2.4.min.js"></script>
 
-      <TITLE>
-         Warehouse webclient
-      </TITLE>
+		<TITLE>
+			Warehouse webclient
+		</TITLE>
 
-    <style>
+		<style>
 
-	*{
-		margin:0px;
-		padding:0px;
-		font-family:"Arial", Gadget, sans-serif;
-	}
+			*{
+				margin:0px;
+				padding:0px;
+				font-family:"Arial", Gadget, sans-serif;
+			}
 
-    #topBar{
-    	margin:0px;
-    	padding-left: 40px;
-    	padding-top: 25px;
-    	position: absolute;
-    	top:0;
-    	height: 100px;
-    	width: 100%;
-    	background-color: #35372F;
-    	border-bottom: 5px solid #101411;
-    	color:#948B55;
-    	font-family:"Arial Black", Gadget, sans-serif;
-    	font-size:50px;
-    }
+			#topBar{
+				margin:0px;
+				padding-left: 40px;
+				padding-top: 25px;
+				position: absolute;
+				top:0;
+				height: 100px;
+				width: 100%;
+				background-color: #35372F;
+				border-bottom: 5px solid #101411;
+				color:#948B55;
+				font-family:"Arial Black", Gadget, sans-serif;
+				font-size:50px;
+			}
 
-    .robot{
-    	font-family:Arial;
-    	font-weight: bold;
-    	color:white;
-    	text-align: center;
-    	padding-top: 10px;
-    	width:42px;
-    	height: 32px;
-    	border: 3px solid black;
-    	border-radius: 25px;
-    	background-color: red;
-    	-webkit-user-select: none; /* Chrome/Safari */        
-		-moz-user-select: none; /* Firefox */
-		-ms-user-select: none; /* IE10+ */
+			.robot{
+				font-family:Arial;
+				font-weight: bold;
+				color:white;
+				text-align: center;
+				padding-top: 10px;
+				width:42px;
+				height: 32px;
+				border: 3px solid black;
+				border-radius: 25px;
+				background-color: red;
+				-webkit-user-select: none; /* Chrome/Safari */        
+				-moz-user-select: none; /* Firefox */
+				-ms-user-select: none; /* IE10+ */
 
-    }
+			}
 
-   	.robot:hover{
-   		background-color:#ff6666;
-   		cursor: pointer;
-   	}
+			.robot:hover{
+				background-color:#ff6666;
+				cursor: pointer;
+			}
 
-    #r1{
-    	position: absolute;
-    	z-index: 15;
-    }
+			#r1{
+				position: absolute;
+				z-index: 15;
+			}
 
-    #r2{
-    	position: absolute;
-    	z-index: 15;
-    }
+			#r2{
+				position: absolute;
+				z-index: 15;
+			}
 
-	#live_stream{
-		width:300px;
-		height:300px;
-		text-align: center;
-		border:1px solid black;
-		position: absolute;
-		top:200px;
-		left:50px;
-	}	
+			#live_stream{
+				width:300px;
+				height:300px;
+				text-align: center;
+				border:1px solid black;
+				position: absolute;
+				top:200px;
+				left:50px;
+			}	
 
-	#mapWrapper{
-		position: absolute;
-		left:700px;
-		top:200px;
-	}
+			#mapWrapper{
+				position: absolute;
+				left:700px;
+				top:200px;
+			}
 
-	#mapWrapper div{
-		position: absolute;
-		
-	}
+			#mapWrapper div{
+				position: absolute;
 
-	table{
-		position: relative;
-		z-index: 10;
-	}
+			}
 
-		td{ 
-			z-index: 100;
-			width:50px;
-			height:50px;
-			text-align: center;
-			-webkit-user-select: none; /* Chrome/Safari */        
-			-moz-user-select: none; /* Firefox */
-			-ms-user-select: none; /* IE10+ */
-			background-color: #808597;
-			color:#808597;
-		}
-		.tdHover:hover{
-			background-color: #9C914D;
-			color: #9C914D;
-		}
+			table{
+				position: relative;
+				z-index: 10;
+			}
 
-		.section{
-			background-color: #2C2F21;
-			color:#2C2F21;
-			width:46px;
-			height:46px;
-			border:1px solid black;
+			td{ 
+				z-index: 100;
+				width:50px;
+				height:50px;
+				text-align: center;
+				-webkit-user-select: none; /* Chrome/Safari */        
+				-moz-user-select: none; /* Firefox */
+				-ms-user-select: none; /* IE10+ */
+				background-color: #808597;
+				color:#808597;
+			}
+			.tdHover:hover{
+				background-color: #9C914D;
+				color: #9C914D;
+			}
 
-		}
+			.section{
+				background-color: #2C2F21;
+				color:#2C2F21;
+				width:46px;
+				height:46px;
+				border:1px solid black;
 
-		.sectionHover:hover{
-			cursor: pointer;
-			background-color: #494B42;
-			color:#494B42;
-		}
+			}
 
-		.occupied{
-			background-color: #873140;
-			color:#873140;
-		}
+			.sectionHover:hover{
+				cursor: pointer;
+				background-color: #494B42;
+				color:#494B42;
+			}
 
-		#dropZone{
-			background-color: #8B7077;
-			color:#8B7077;
-		}
+			.occupied{
+				background-color: #873140;
+				color:#873140;
+			}
 
-		#addZone{
-			background-color: #8B9175;
-			color:#8B9175;
-		}
+			#dropZone{
+				background-color: #8B7077;
+				color:#8B7077;
+			}
 
-	#orderBar{
-		display: none;
-		position: absolute;
-		left:632px;
-		top:600px;
-		width:514px;
-		text-align: center;
-	}
-		#submitButton{
-			position: absolute;
-			top:200px;
-			left:210px;	
-			background-color: #97BA1C;
-			color: #151908;
-			display:none;
-		}
+			#addZone{
+				background-color: #8B9175;
+				color:#8B9175;
+			}
 
-		#submitButton:hover{
-			background-color: #98A765;
-		}
+			#orderBar{
+				display: none;
+				position: absolute;
+				left:632px;
+				top:600px;
+				width:514px;
+				text-align: center;
+			}
+			#submitButton{
+				position: absolute;
+				top:200px;
+				left:210px;	
+				background-color: #97BA1C;
+				color: #151908;
+				display:none;
+			}
 
-		.buttons{
-			display: inline-block;
-			background-color: #0D2213;
-			-webkit-border-radius: 28px;
-			-moz-border-radius: 28px;
-			border-radius: 28px;
-			font-family: Arial;
-			color: #948B55;
-			font-size: 17px;
-			padding: 10px 20px 10px 20px;
-			text-decoration: none;
-		}
+			#submitButton:hover{
+				background-color: #98A765;
+			}
 
-		.buttons:hover{
-			background-color:#0F431D ;
-			text-decoration: none;
-			cursor:pointer;
-		}
-		
-		#chosenRobot{
-			margin-bottom: 10px;
-		}
+			.buttons{
+				display: inline-block;
+				background-color: #0D2213;
+				-webkit-border-radius: 28px;
+				-moz-border-radius: 28px;
+				border-radius: 28px;
+				font-family: Arial;
+				color: #948B55;
+				font-size: 17px;
+				padding: 10px 20px 10px 20px;
+				text-decoration: none;
+			}
 
-		#tooltip{
-			font-style: italic;
-		}
-		
-	#inspector{
-		position: absolute;
-		left:1100px;
-		top:200px;
-		width:400px;
-		height:400px;
-		/*border:1px solid black; */
+			.buttons:hover{
+				background-color:#0F431D ;
+				text-decoration: none;
+				cursor:pointer;
+			}
 
-	}
-	#sectionInfo{
-		display: none;
-		margin-top:5px;
-	}
+			#chosenRobot{
+				margin-bottom: 10px;
+			}
 
-	#good{
-		display: none;
-	}
+			#tooltip{
+				font-style: italic;
+			}
 
-	#legend{
-		position: absolute;
-		left: 1200px;
-		top:420px;
-		font-weight: bold;
-	}
-		#legend div{
-			position: absolute;
-			top:30px;
-			left:60px;
-			width: 200px;
-		}
+			#inspector{
+				position: absolute;
+				left:1100px;
+				top:200px;
+				width:400px;
+				height:400px;
+				/*border:1px solid black; */
+
+			}
+			#sectionInfo{
+				display: none;
+				margin-top:5px;
+			}
+
+			#good{
+				display: none;
+			}
+
+			#legend{
+				position: absolute;
+				left: 1200px;
+				top:420px;
+				font-weight: bold;
+			}
+			#legend div{
+				position: absolute;
+				top:30px;
+				left:60px;
+				width: 200px;
+			}
 
 			#legend div span{
 				margin-bottom: 50px;
 			}
-	
-	#goodForm{
-	    visibility:hidden;
-	    position:absolute;
-	    background-color: #35372F;
-	    border:2px solid #948B55;
-	    color:white;
-	    z-index:100;
-	    width: 400px;
-	    
-	    padding:20px;
-	    left:616px;
-	    top:635px;
-		-webkit-border-radius: 28px;
-		-moz-border-radius: 28px;
-		border-radius: 28px;
-	}
 
-	.dimmer{
-	    background: #000;
-	    position: absolute;
-	    opacity: .5;
-	    top: 0;
-	    z-index:99;
-	}
+			#goodForm{
+				visibility:hidden;
+				position:absolute;
+				background-color: #35372F;
+				border:2px solid #948B55;
+				color:white;
+				z-index:100;
+				width: 400px;
 
-	</style>
+				padding:20px;
+				left:616px;
+				top:635px;
+				-webkit-border-radius: 28px;
+				-moz-border-radius: 28px;
+				border-radius: 28px;
+			}
 
-   </HEAD>
-<BODY>
-	<div id="topBar">Warehouse Client v1.0</div>
-   	<div id="live_stream"><!-- ADd youtube embedded code height 350 width 622 -->
-   		<iframe width="622" height="350" src="https://www.youtube.com/embed/ru0K8uYEZWw" frameborder="0" allowfullscreen></iframe>
-   	</div>
-   	<div id="legend">Legend: 
-   		<table>
-   			<tr>
-   				<td id="dropZone"></td>
-   			</tr>
-   			<tr>
-   				<td id="addZone"></td>
-   			</tr>
-   			<tr>
-   				<td class="occupied"></td>
-   			</tr>
-   			<tr>
-   				<td class="section"></td>
-   			</tr>
-   			<tr>
-   				<td></td>
-   			</tr>
+			.dimmer{
+				background: #000;
+				position: absolute;
+				opacity: .5;
+				top: 0;
+				z-index:99;
+			}
 
-   		</table>
-   		<div>
-	   		<span>Drop Zone</span><br/><br/><br/>
-	   		<span>Pickup Zone</span><br/><br/><br/>
-	   		<span>Occupied Space</span><br/><br/><br/>
-	   		<span>Free Space</span><br/><br/><br/>
-	   		<span>Path Tile</span>
-   		</div>
-   	</div>
-   	<div id="mapWrapper">
-		<div class="robot" id="r1">R1</div>
-		<!-- <div class="robot" id="r2">R2</div> -->
-	   	<table id="mapTable" cellspacing="0">
-			<tr>
-				<td class="tdHover">0,6</td>
-				<td class="tdHover">1,6</td>
-				<td class="tdHover">2,6</td>
-				<td class="tdHover">3,6</td>
-				<td class="tdHover">4,6</td>
-				<td class="tdHover">5,6</td>
-				<td class="tdHover">6,6</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,5</td>
-				<td class="section sectionHover">1,5</td>
-				<td class="section sectionHover">2,5</td>
-				<td class="tdHover" >3,5</td>
-				<td class="section sectionHover">4,5</td>
-				<td class="section sectionHover">5,5</td>
-				<td class="tdHover">6,5</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,4</td>
-				<td class="section sectionHover">1,4</td>
-				<td class="section sectionHover">2,4</td>
-				<td class="tdHover">3,4</td>
-				<td class="section sectionHover">4,4</td>
-				<td class="section sectionHover">5,4</td>
-				<td class="tdHover">6,4</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,3</td>
-				<td class="tdHover">1,3</td>
-				<td class="tdHover">2,3</td>
-				<td class="tdHover">3,3</td>
-				<td class="tdHover">4,3</td>
-				<td class="tdHover">5,3</td>
-				<td class="tdHover">6,3</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,2</td>
-				<td class="section sectionHover" id="dropZone">1,2</td>
-				<td class="section sectionHover">2,2</td>
-				<td class="tdHover">3,2</td>
-				<td class="section sectionHover">4,2</td>
-				<td class="section sectionHover">5,2</td>
-				<td class="tdHover">6,2</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,1</td>
-				<td class="section sectionHover" id="addZone">1,1</td>
-				<td class="section sectionHover">2,1</td>
-				<td class="tdHover">3,1</td>
-				<td class="section sectionHover">4,1</td>
-				<td class="section sectionHover">5,1</td>
-				<td class="tdHover">6,1</td>
-			</tr>
-			<tr>
-				<td class="tdHover">0,0</td>
-				<td class="tdHover">1,0</td>
-				<td class="tdHover">2,0</td>
-				<td class="tdHover">3,0</td>
-				<td class="tdHover">4,0</td>
-				<td class="tdHover">5,0</td>
-				<td class="tdHover">6,0</td>
-			</tr>
-		</table>
-	</div>
+		</style>
 
-   	<div id="inspector">
-   		<h1>Inspector</h1>
-   		<h2 id="chosenSection">section:</h2>
-   		<div id="sectionInfo">
-   			<span id="sectionStatus"></span><br/>
-   			<span id="sectionTemperature"></span><br/>
-   			<span id="sectionLighting"></span><br/><br/>
-   			
-   			<div id="good">
-	   			<span id="goodName"></span><br/>
-	   			<span id="desTemperature"></span><br/>
-	   			<span id="desLighting"></span>
-	   		</div>
-   		</div>
+	</HEAD>
+	<BODY>
+		<div id="topBar">Warehouse Client v1.0</div>
+		<div id="live_stream"><!-- ADd youtube embedded code height 350 width 622 -->
+			<iframe width="622" height="350" src="https://www.youtube.com/embed/ru0K8uYEZWw" frameborder="0" allowfullscreen></iframe>
+		</div>
+		<div id="legend">Legend: 
+			<table>
+				<tr>
+					<td id="dropZone"></td>
+				</tr>
+				<tr>
+					<td id="addZone"></td>
+				</tr>
+				<tr>
+					<td class="occupied"></td>
+				</tr>
+				<tr>
+					<td class="section"></td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
 
-   	</div>
+			</table>
+			<div>
+				<span>Drop Zone</span><br/><br/><br/>
+				<span>Pickup Zone</span><br/><br/><br/>
+				<span>Occupied Space</span><br/><br/><br/>
+				<span>Free Space</span><br/><br/><br/>
+				<span>Path Tile</span>
+			</div>
+		</div>
+		<div id="mapWrapper">
+			<div class="robot" id="r1">R1</div>
+			<!-- <div class="robot" id="r2">R2</div> -->
+			<table id="mapTable" cellspacing="0">
+				<tr>
+					<td class="tdHover">0,6</td>
+					<td class="tdHover">1,6</td>
+					<td class="tdHover">2,6</td>
+					<td class="tdHover">3,6</td>
+					<td class="tdHover">4,6</td>
+					<td class="tdHover">5,6</td>
+					<td class="tdHover">6,6</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,5</td>
+					<td class="section sectionHover">1,5</td>
+					<td class="section sectionHover">2,5</td>
+					<td class="tdHover" >3,5</td>
+					<td class="section sectionHover">4,5</td>
+					<td class="section sectionHover">5,5</td>
+					<td class="tdHover">6,5</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,4</td>
+					<td class="section sectionHover">1,4</td>
+					<td class="section sectionHover">2,4</td>
+					<td class="tdHover">3,4</td>
+					<td class="section sectionHover">4,4</td>
+					<td class="section sectionHover">5,4</td>
+					<td class="tdHover">6,4</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,3</td>
+					<td class="tdHover">1,3</td>
+					<td class="tdHover">2,3</td>
+					<td class="tdHover">3,3</td>
+					<td class="tdHover">4,3</td>
+					<td class="tdHover">5,3</td>
+					<td class="tdHover">6,3</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,2</td>
+					<td class="section sectionHover" id="dropZone">1,2</td>
+					<td class="section sectionHover">2,2</td>
+					<td class="tdHover">3,2</td>
+					<td class="section sectionHover">4,2</td>
+					<td class="section sectionHover">5,2</td>
+					<td class="tdHover">6,2</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,1</td>
+					<td class="section sectionHover" id="addZone">1,1</td>
+					<td class="section sectionHover">2,1</td>
+					<td class="tdHover">3,1</td>
+					<td class="section sectionHover">4,1</td>
+					<td class="section sectionHover">5,1</td>
+					<td class="tdHover">6,1</td>
+				</tr>
+				<tr>
+					<td class="tdHover">0,0</td>
+					<td class="tdHover">1,0</td>
+					<td class="tdHover">2,0</td>
+					<td class="tdHover">3,0</td>
+					<td class="tdHover">4,0</td>
+					<td class="tdHover">5,0</td>
+					<td class="tdHover">6,0</td>
+				</tr>
+			</table>
+		</div>
 
-   	<div id="orderBar">
-   		<h2 id="chosenRobot"></h2>
-   		<div class="buttons" id="moveButton">Move</div>
-   		<div class="buttons" id="addGood">Add Good</div>
-   		
-   		<div class="buttons" id="removeGoodButton">Remove Good</div>
-   		<div class="buttons" id="placeGoodButton">Place good</div><br/>
-   		<h2 id="order" style="margin-top:20px;"></h2>
-   		<span id="tooltip"></span>
-   		<div class="buttons" id="submitButton">Submit</div>
-   	</div>
-   	<div id="goodForm" >
-   		<h2>Add Good</h2><br/><br/>
-   		<form onsubmit="subtmitForm(); return false;">
-	 		Good name:
-	 		<input type="text" name="name"><br><br/>
-	 		Desired temperature (&degc) min:
-	  		<input type="number" name="temp_min" min="0" max="50">
-	  		max:
-	  		<input type="number" name="temp_max" min="0" max="50"><br/><br/>
-	        Desired lighting (Lumen) min:
-	  		<input type="number" name="light_min" min="0" max="100">
-	  		max:
-	  		<input type="number" name="light_max" min="0" max="100"><br/>
-	  		<input type="submit" value="Submit" id="submitForm">
-		</form>
-   	</div>
-	<script>
-	var moveOrder = false;
-	var hasGood = false;
-	var placeGoodOrder = false;
-	var removeGoodOrder = false;
-	var orderDone = false;
+		<div id="inspector">
+			<h1>Inspector</h1>
+			<h2 id="chosenSection">section:</h2>
+			<div id="sectionInfo">
+				<span id="sectionStatus"></span><br/>
+				<span id="sectionTemperature"></span><br/>
+				<span id="sectionLighting"></span><br/><br/>
 
-	var toCoordinate;
-	var fromCoordinate;
+				<div id="good">
+					<span id="goodName"></span><br/>
+					<span id="desTemperature"></span><br/>
+					<span id="desLighting"></span>
+				</div>
+			</div>
 
-	window.setInterval(function(){
-		$.get( "http://localhost:3000/robot", function( data ) {
-        	var robot = JSON.parse(data);
- 
+		</div>
 
-        	$('#r1').animate({ "left": ((robot.x_coord)*50).toString() +'px',"bottom": ((robot.y_coord)*50).toString() +'px'}, "slow" );
- 
+		<div id="orderBar">
+			<h2 id="chosenRobot"></h2>
+			<div class="buttons" id="moveButton">Move</div>
+			<div class="buttons" id="addGood">Add Good</div>
+
+			<div class="buttons" id="removeGoodButton">Remove Good</div>
+			<div class="buttons" id="placeGoodButton">Place good</div><br/>
+			<h2 id="order" style="margin-top:20px;"></h2>
+			<span id="tooltip"></span>
+			<div class="buttons" id="submitButton">Submit</div>
+		</div>
+		<div id="goodForm" >
+			<h2>Add Good</h2><br/><br/>
+			<form onsubmit="subtmitForm(); return false;">
+				Good name:
+				<input type="text" name="name"><br><br/>
+				Desired temperature (&degc) min:
+				<input type="number" name="temp_min" min="0" max="50">
+				max:
+				<input type="number" name="temp_max" min="0" max="50"><br/><br/>
+				Desired lighting (Lumen) min:
+				<input type="number" name="light_min" min="0" max="100">
+				max:
+				<input type="number" name="light_max" min="0" max="100"><br/>
+				<input type="submit" value="Submit" id="submitForm">
+			</form>
+		</div>
+		<script>
+			var moveOrder = false;
+			var hasGood = false;
+			var placeGoodOrder = false;
+			var removeGoodOrder = false;
+			var orderDone = false;
+
+			var toCoordinate;
+			var fromCoordinate;
+
+			window.setInterval(function(){
+				$.get( "http://localhost:3000/robot", function( data ) {
+					var robot = JSON.parse(data);
+
+
+					$('#r1').animate({ "left": ((robot.x_coord)*50).toString() +'px',"bottom": ((robot.y_coord)*50).toString() +'px'}, "slow" );
+
         	//$('#r2').animate({ "left": ((robots[1].x_coordinate)*50).toString() +'px',"bottom": ((robots[1].y_coordinate)*50).toString() +'px'}, "slow" );
         },"text");
-        $.get( "http://localhost:3000/db", function( data ) {
-        	sections = JSON.parse(data);
-        	for (var i = 0; i < sections.length; i++){
-  				if (sections[i].status == "occupied") {
-  					s = sections[i].x_coord+','+sections[i].y_coord;
-  					$(".section:contains('" + s + "')").addClass("occupied");
-  				} else {
-  					s = sections[i].x_coord+','+sections[i].y_coord;
-  					$("td:contains('" + s + "')").removeClass( "occupied" );
-  				};
-			}
+				$.get( "http://localhost:3000/db", function( data ) {
+					sections = JSON.parse(data);
+					for (var i = 0; i < sections.length; i++){
+						if (sections[i].status == "occupied") {
+							s = sections[i].x_coord+','+sections[i].y_coord;
+							$(".section:contains('" + s + "')").addClass("occupied");
+						} else {
+							s = sections[i].x_coord+','+sections[i].y_coord;
+							$("td:contains('" + s + "')").removeClass( "occupied" );
+						};
+					}
+				},"text");
+			}, 3000);
+
+
+			$('.section').hover(function(){
+
+				var mySection = null;
+				var clickedX = this.innerHTML.substring(0,1);
+				var clickedY = this.innerHTML.substring(2,3);
+				var sections;
+				$.get( "http://localhost:3000/db", function( data ) {
+					sections = JSON.parse(data);
+					for (var i = 0; i < sections.length; i++){
+						if (sections[i].x_coord == clickedX && sections[i].y_coord == clickedY ){
+							mySection = sections[i];
+						};
+					};
+
+					if(mySection != null){
+						$('#sectionInfo').show();
+						$('#chosenSection').html('Section at: (' + mySection.x_coord + ', ' + mySection.y_coord+')');
+						$('#sectionStatus').html('Status: ' + mySection.status);
+						$('#sectionTemperature').html('Temperature: ' + mySection.temperature + '&degc');
+
+						if(mySection.good != false){
+							$('#good').show()
+							$('#goodName').html('Good name: ' + mySection.good.name);
+							$('#desTemperature').html('Desired Temperature: ' + mySection.good.desiredTemperature.min + '&degc to ' + mySection.good.desiredTemperature.max + '&degc');
+							$('#desLighting').html('Desired Lighting: ' + mySection.good.desiredLighting + ' Lumen');
+						}else{
+							$('#good').hide()
+						}
+					}else{
+						$('#sectionInfo').hide();
+					}
+				},"text");
+				$.get( "http://localhost:3000/sensors", function( data ) {
+					sensors = JSON.parse(data);
+					var sensorID;
+					if(mySection.x_coord < 3 && mySection.y_coord > 3){
+								//upperleft
+								sensorID = 1;
+							} if (mySection.x_coord > 3 && mySection.y_coord > 3) {
+								//Upperright
+								sensorID = 2;
+							} if (mySection.x_coord > 3 && mySection.y_coord < 3) {
+								//bottomright
+								sensorID = 3;
+							} 
+
+							if (mySection.x_coord < 3 && mySection.y_coord < 3) {
+								//bottomleft
+								$('#sectionTemperature').html('No sensors in this area');
+								$('#sectionLighting').html('No sensors in this area');
+							} else {
+								$('#sectionTemperature').html('Temperature: ' + sensors[(sensorID-1)].temperature + '&degc');
+								$('#sectionLighting').html('Lighting: ' + sensors[(sensorID-1)].lighting + ' Lumen');
+							};
+							
+						},"text");
+			});
+
+			$('.robot').click( function(e){
+				$('#orderBar').show();
+				$('#chosenRobot').html('Selected Robot ' + e.target.innerHTML.substring(1,2));
+			});
+
+			$('#moveButton').click(function() {
+				getGoodOrder = false;
+				hasGood = false;
+				removeGoodOrder = false;
+				moveOrder = true;
+				$('#order').html('Move robot to coordinate: ');
+				$('#tooltip').html('Select a path tile on the map where you would like the robot to move.');
+			});
+
+			$('#removeGoodButton').click(function() {
+				moveOrder = false;
+				hasGood = false;
+				placeGoodOrder = false;
+				removeGoodOrder = true;
+				$('#order').html('Remove a good from the warehouse: (x1,y1)');
+				$('#tooltip').html('Select an occupied tile on the map to make the<br/> robot remove the good in that spot from the warehouse.');
+			});
+
+			$('#placeGoodButton').click(function() {
+				moveOrder = false;
+				hasGood = false;
+				removeGoodOrder = false;
+				placeGoodOrder = true;
+				$('#order').html('Make the robot change place of the good <br/> on coordinate: (x1,y1) , to coordinate: (x2,y2)');
+				$('#tooltip').html('Select a storage tile on the map <br/> where you would like the robot to pick up a good to change its location.');
+			});
+
+			$('td').click(function(e) {
+				var clickedX = this.innerHTML.substring(0,1);
+				var clickedY = this.innerHTML.substring(2,3);
+				if (moveOrder) {
+					if ($(e.target).is('.section')) {
+						alert("The robot can only be moved to path tiles.")
+					} else{
+						toCoordinate = "("+clickedX+","+clickedY+")"
+						$('#order').html('Move robot to coordinate: '+toCoordinate+'.');
+						$('#submitButton').show();
+					};			
+				}  	if (removeGoodOrder) {
+
+					if (!$(e.target).is('.section')) {
+						alert("The robot can only remove goods from storage tiles.")
+					} else{
+						fromCoordinate = "("+clickedX+","+clickedY+")"
+						$('#order').html('Remove the good on coordinate: '+fromCoordinate+'.');
+						$('#submitButton').show();
+					};			
+				}	if (placeGoodOrder) {
+
+					if (hasGood) {
+						if (!$(e.target).is('.section')) {
+							alert("Goods can only be placed in storage tiles.");
+						} else{
+							toCoordinate = "("+clickedX+","+clickedY+")";
+							$('#order').html('Make the robot change place of the good <br/> on coordinate: '+ fromCoordinate +', to coordinate: '+toCoordinate);
+							$('#submitButton').show();
+						};
+					} else {
+						if (!$(e.target).is('.section')) {
+							alert("Goods can only be found in storage tiles.")
+						} else{
+							fromCoordinate = "("+clickedX+","+clickedY+")"
+							$('#order').html('Make the robot change place of the good <br/> on coordinate: '+ fromCoordinate +', to coordinate: (x2,y2)');
+							$('#tooltip').html('Select a storage tile on the map <br/> where you would like the robot place the good its carrying.');
+							hasGood = true;
+						};
+					};
+				};
+
+
+
+			});
+
+			$('#submitButton').click(function() {
+				$('#order').html('Order submitted!');
+				$('#tooltip').html('');
+				if (moveOrder) {
+					$.get( "http://localhost:3000/robot/move"+toCoordinate, function( data ) {
+        	//alert(data);
         },"text");
-	}, 3000);
+				} if (placeGoodOrder) {
+					$.get( "http://localhost:3000/robot/placeGood"+fromCoordinate+toCoordinate, function( data ) {
+        	//alert(data);
+        },"text");
+				} if (removeGoodOrder) {
+					$.get( "http://localhost:3000/robot/removeGood"+fromCoordinate, function( data ) {
+        	//alert(data);
+        },"text");
+				};
+				moveOrder = false;
+				getGoodOrder = false;
+				placeGoodOrder = false;
+				removeGoodOrder = false;
+				$('#submitButton').hide();
+			});
 
-	
-	$('.section').hover(function(){
+			var opener = document.getElementById("addGood");
 
-		var mySection = null;
-		var clickedX = this.innerHTML.substring(0,1);
-		var clickedY = this.innerHTML.substring(2,3);
-		var sections;
-        $.get( "http://localhost:3000/db", function( data ) {
-        	sections = JSON.parse(data);
-        	for (var i = 0; i < sections.length; i++){
-  				if (sections[i].x_coord == clickedX && sections[i].y_coord == clickedY ){
-  					mySection = sections[i];
-  				};
+			opener.onclick = function(){
+				moveOrder = false;
+				hasGood = false;
+				removeGoodOrder = false;
+				var goodForm = document.getElementById("goodForm"),
+				dimmer = document.createElement("div");
+
+				dimmer.style.width =  window.innerWidth + 'px';
+				dimmer.style.height = window.innerHeight + 'px';
+				dimmer.className = 'dimmer';
+
+				dimmer.onclick = function(){
+					document.body.removeChild(this);   
+					goodForm.style.visibility = 'hidden';
+				}
+
+				document.getElementById("submitForm").onclick = function(){
+					document.body.removeChild(dimmer);   
+					goodForm.style.visibility = 'hidden';
+				}
+				document.body.appendChild(dimmer);
+
+				goodForm.style.visibility = 'visible';
+
+				return false;
 			};
 
-        	if(mySection != null){
-				$('#sectionInfo').show();
-				$('#chosenSection').html('Section at: (' + mySection.x_coord + ', ' + mySection.y_coord+')');
-				$('#sectionStatus').html('Status: ' + mySection.status);
-				$('#sectionTemperature').html('Temperature: ' + mySection.temperature + '&degc');
-				$('#sectionLighting').html('Lighting: ' + mySection.lighting + ' Lumen');
-				if(mySection.good != false){
-					$('#good').show()
-					$('#goodName').html('Good name: ' + mySection.good.name);
-					$('#desTemperature').html('Desired Temperature: ' + mySection.good.desiredTemperature.min + '&degc to ' + mySection.good.desiredTemperature.max + '&degc');
-					$('#desLighting').html('Desired Lighting: ' + mySection.good.desiredLighting + ' Lumen');
-				}else{
-					$('#good').hide()
-				}
-        	}else{
-        		$('#sectionInfo').hide();
-        	}
-        },"text");
-    });
-
-    $('.robot').click( function(e){
-		$('#orderBar').show();
-		$('#chosenRobot').html('Selected Robot ' + e.target.innerHTML.substring(1,2));
-    });
-		
-	$('#moveButton').click(function() {
-		getGoodOrder = false;
-		hasGood = false;
-		removeGoodOrder = false;
-		moveOrder = true;
-    	$('#order').html('Move robot to coordinate: ');
-    	$('#tooltip').html('Select a path tile on the map where you would like the robot to move.');
-	});
-
-	$('#removeGoodButton').click(function() {
-		moveOrder = false;
-		hasGood = false;
-    	placeGoodOrder = false;
-    	removeGoodOrder = true;
-    	$('#order').html('Remove a good from the warehouse: (x1,y1)');
-    	$('#tooltip').html('Select an occupied tile on the map to make the<br/> robot remove the good in that spot from the warehouse.');
-	});
-
-	$('#placeGoodButton').click(function() {
-		moveOrder = false;
-		hasGood = false;
-		removeGoodOrder = false;
-    	placeGoodOrder = true;
-    	$('#order').html('Make the robot change place of the good <br/> on coordinate: (x1,y1) , to coordinate: (x2,y2)');
-    	$('#tooltip').html('Select a storage tile on the map <br/> where you would like the robot to pick up a good to change its location.');
-	});
-
-	$('td').click(function(e) {
-		var clickedX = this.innerHTML.substring(0,1);
-		var clickedY = this.innerHTML.substring(2,3);
-    	if (moveOrder) {
-    		if ($(e.target).is('.section')) {
-    			alert("The robot can only be moved to path tiles.")
-    		} else{
-    			toCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Move robot to coordinate: '+toCoordinate+'.');
-				$('#submitButton').show();
-    		};			
-    	}  	if (removeGoodOrder) {
-
-    		if (!$(e.target).is('.section')) {
-    			alert("The robot can only remove goods from storage tiles.")
-    		} else{
-    			fromCoordinate = "("+clickedX+","+clickedY+")"
-    			$('#order').html('Remove the good on coordinate: '+fromCoordinate+'.');
-				$('#submitButton').show();
-    		};			
-    	}	if (placeGoodOrder) {
-
-			if (hasGood) {
-    			if (!$(e.target).is('.section')) {
-	    			alert("Goods can only be placed in storage tiles.");
-	    		} else{
-	    			toCoordinate = "("+clickedX+","+clickedY+")";
-	    			$('#order').html('Make the robot change place of the good <br/> on coordinate: '+ fromCoordinate +', to coordinate: '+toCoordinate);
-					$('#submitButton').show();
-				};
-    		} else {
-    			if (!$(e.target).is('.section')) {
-	    			alert("Goods can only be found in storage tiles.")
-	    		} else{
-	    			fromCoordinate = "("+clickedX+","+clickedY+")"
-	    			$('#order').html('Make the robot change place of the good <br/> on coordinate: '+ fromCoordinate +', to coordinate: (x2,y2)');
-    				$('#tooltip').html('Select a storage tile on the map <br/> where you would like the robot place the good its carrying.');
-    				hasGood = true;
-	    		};
-    		};
-    	};
-    	
-    	
-
-	});
-
-	$('#submitButton').click(function() {
-    	$('#order').html('Order submitted!');
-    	$('#tooltip').html('');
-    	if (moveOrder) {
-    		$.get( "http://localhost:3000/robot/move"+toCoordinate, function( data ) {
-        	//alert(data);
-        },"text");
-    	} if (placeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/placeGood"+fromCoordinate+toCoordinate, function( data ) {
-        	//alert(data);
-        },"text");
-    	} if (removeGoodOrder) {
-    		$.get( "http://localhost:3000/robot/removeGood"+fromCoordinate, function( data ) {
-        	//alert(data);
-        },"text");
-    	};
-    	moveOrder = false;
-		getGoodOrder = false;
-		placeGoodOrder = false;
-		removeGoodOrder = false;
-		$('#submitButton').hide();
-	});
-
-	var opener = document.getElementById("addGood");
-
-	opener.onclick = function(){
-		moveOrder = false;
-		hasGood = false;
-		removeGoodOrder = false;
-	    var goodForm = document.getElementById("goodForm"),
-	        dimmer = document.createElement("div");
-
-	    dimmer.style.width =  window.innerWidth + 'px';
-	    dimmer.style.height = window.innerHeight + 'px';
-	    dimmer.className = 'dimmer';
-
-	    dimmer.onclick = function(){
-	        document.body.removeChild(this);   
-	        goodForm.style.visibility = 'hidden';
-	    }
-
-	    document.getElementById("submitForm").onclick = function(){
-	    	document.body.removeChild(dimmer);   
-	        goodForm.style.visibility = 'hidden';
-	    }
-	    document.body.appendChild(dimmer);
-
-	    goodForm.style.visibility = 'visible';
-
-	    return false;
-	};
-
-	function subtmitForm() {
-		var goodName = $( "input[name='name']" ).val();
-		var temp_min = $( "input[name='temp_min']" ).val();
-		var temp_max = $( "input[name='temp_max']" ).val();
-		var light_min = $( "input[name='light_min']" ).val();
-		var light_max = $( "input[name='light_max']" ).val();
+			function subtmitForm() {
+				var goodName = $( "input[name='name']" ).val();
+				var temp_min = $( "input[name='temp_min']" ).val();
+				var temp_max = $( "input[name='temp_max']" ).val();
+				var light_min = $( "input[name='light_min']" ).val();
+				var light_max = $( "input[name='light_max']" ).val();
 		//s = "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max;
 		//alert(s);
-	
-    	$.get( "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
-        	alert(data);
 
-        },"text");
+		$.get( "http://localhost:3000/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
+			alert(data);
+
+		},"text");
 	};
 
-	</script>
+</script>
 </BODY>
 </HTML>

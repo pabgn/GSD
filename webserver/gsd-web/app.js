@@ -10,7 +10,11 @@ app.get('/', function (req, res) {
 });
 
 app.get('/db', function (req, res) {
-	res.sendfile('./database.js');
+	res.sendfile('./sections.js');
+});
+
+app.get('/sensors', function (req, res) {
+	res.sendfile('./sensors.js');
 });
 
 app.get('/robot', function (req, res) {
