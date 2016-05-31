@@ -45,7 +45,7 @@
 				border: 3px solid black;
 				border-radius: 25px;
 				background-color: red;
-				-webkit-user-select: none; /* Chrome/Safari */        
+				-webkit-user-select: none; /* Chrome/Safari */
 				-moz-user-select: none; /* Firefox */
 				-ms-user-select: none; /* IE10+ */
 
@@ -74,7 +74,7 @@
 				position: absolute;
 				top:200px;
 				left:50px;
-			}	
+			}
 
 			#mapWrapper{
 				position: absolute;
@@ -92,12 +92,12 @@
 				z-index: 10;
 			}
 
-			td{ 
+			td{
 				z-index: 100;
 				width:50px;
 				height:50px;
 				text-align: center;
-				-webkit-user-select: none; /* Chrome/Safari */        
+				-webkit-user-select: none; /* Chrome/Safari */
 				-moz-user-select: none; /* Firefox */
 				-ms-user-select: none; /* IE10+ */
 				background-color: #808597;
@@ -149,7 +149,7 @@
 			#submitButton{
 				position: absolute;
 				top:200px;
-				left:210px;	
+				left:210px;
 				background-color: #97BA1C;
 				color: #151908;
 				display:none;
@@ -254,7 +254,7 @@
 		<div id="live_stream"><!-- ADd youtube embedded code height 350 width 622 -->
 			<iframe width="622" height="350" src="https://www.youtube.com/embed/ru0K8uYEZWw" frameborder="0" allowfullscreen></iframe>
 		</div>
-		<div id="legend">Legend: 
+		<div id="legend">Legend:
 			<table>
 				<tr>
 					<td id="dropZone"></td>
@@ -381,7 +381,7 @@
 		</div>
 		<div id="goodForm" >
 			<h2>Add Good</h2><br/><br/>
-			<form onsubmit="subtmitForm(); return false;">
+			<form onsubmit="submitForm(); return false;">
 				Good name:
 				<input type="text" name="name"><br><br/>
 				Desired temperature (&degc) min:
@@ -473,7 +473,7 @@
 							} if (mySection.x_coord > 3 && mySection.y_coord < 3) {
 								//bottomright
 								sensorID = 3;
-							} 
+							}
 
 							if (mySection.x_coord < 3 && mySection.y_coord < 3) {
 								//bottomleft
@@ -483,7 +483,7 @@
 								$('#sectionTemperature').html('Temperature: ' + sensors[(sensorID-1)].temperature + '&degc');
 								$('#sectionLighting').html('Lighting: ' + sensors[(sensorID-1)].lighting + ' Lumen');
 							};
-							
+
 						},"text");
 			});
 
@@ -529,7 +529,7 @@
 						toCoordinate = "("+clickedX+","+clickedY+")"
 						$('#order').html('Move robot to coordinate: '+toCoordinate+'.');
 						$('#submitButton').show();
-					};			
+					};
 				}  	if (removeGoodOrder) {
 
 					if (!$(e.target).is('.section')) {
@@ -538,7 +538,7 @@
 						fromCoordinate = "("+clickedX+","+clickedY+")"
 						$('#order').html('Remove the good on coordinate: '+fromCoordinate+'.');
 						$('#submitButton').show();
-					};			
+					};
 				}	if (placeGoodOrder) {
 
 					if (hasGood) {
@@ -602,12 +602,12 @@
 				dimmer.className = 'dimmer';
 
 				dimmer.onclick = function(){
-					document.body.removeChild(this);   
+					document.body.removeChild(this);
 					goodForm.style.visibility = 'hidden';
 				}
 
 				document.getElementById("submitForm").onclick = function(){
-					document.body.removeChild(dimmer);   
+					document.body.removeChild(dimmer);
 					goodForm.style.visibility = 'hidden';
 				}
 				document.body.appendChild(dimmer);
@@ -617,7 +617,7 @@
 				return false;
 			};
 
-			function subtmitForm() {
+			function submitForm() {
 				var goodName = $( "input[name='name']" ).val();
 				var temp_min = $( "input[name='temp_min']" ).val();
 				var temp_max = $( "input[name='temp_max']" ).val();
@@ -625,7 +625,7 @@
 				var light_max = $( "input[name='light_max']" ).val();
 
 				$.get( myIP + "/add/"+goodName+"/"+temp_min+"/"+temp_max+"/"+light_min+"/"+light_max, function( data ) {
-					alert(data);
+					//alert(data);
 
 				},"text");
 			};
